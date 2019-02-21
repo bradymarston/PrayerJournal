@@ -8,7 +8,8 @@
         "web"
       ],
       "pwa": false,
-      "ui": "bootstrap",
+      "ui": "material",
+      "layout": "side-menu",
       "auth": true,
       "lazy": true,
       "angulartics": false,
