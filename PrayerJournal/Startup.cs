@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PrayerJournal.Persistence;
+using PrayerJournal.Core.Repositories;
 
 namespace PrayerJournal
 {
@@ -28,6 +29,8 @@ namespace PrayerJournal
 
             services.AddMvc()
                 .AddNewtonsoftJson();
+
+            services.AddUnitOfWork<UnitOfWork>();
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
