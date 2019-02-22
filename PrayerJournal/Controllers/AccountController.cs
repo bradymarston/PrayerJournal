@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 namespace PrayerJournal.Controllers
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("[controller]")]
     public class AccountController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -34,7 +35,7 @@ namespace PrayerJournal.Controllers
             _configuration = configuration;
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<object> Login([FromBody] LoginDto model)
         {
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
@@ -45,10 +46,13 @@ namespace PrayerJournal.Controllers
                 return GenerateJwtToken(model.Email, appUser);
             }
 
+            if (result.IsLockedOut)
+                return this.BadModel("Password", "Your account has been locked out. Please try again in a few minutes.");
+
             return this.BadModel("", "Incorrect email or password.");
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<object> Register([FromBody] RegisterDto registration)
         {
             if (await _userManager.FindByNameAsync(registration.Email) != null)
@@ -67,6 +71,21 @@ namespace PrayerJournal.Controllers
                 await _signInManager.SignInAsync(user, false);
                 return GenerateJwtToken(registration.Email, user);
             }
+
+            return ProcessIdentityResult(result);
+        }
+
+        [HttpPut("password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto passwords)
+        {
+            var userName = HttpContext.GetCurrentUserName();
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var result = await _userManager.ChangePasswordAsync(user, passwords.OldPassword, passwords.NewPassword);
+
+            if (result.Succeeded)
+                return Ok();
 
             return ProcessIdentityResult(result);
         }
