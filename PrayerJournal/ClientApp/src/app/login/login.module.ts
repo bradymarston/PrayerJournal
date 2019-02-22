@@ -7,7 +7,8 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { SharedModule } from '@app/shared';
 import { MaterialModule } from '@app/material.module';
 import { LoginRoutingModule } from './login-routing.module';
-import { LoginComponent } from './login.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { LoginComponent } from './login.component';
     LoginRoutingModule
   ],
   declarations: [
-    LoginComponent
+    LoginComponent,
+    RegisterComponent
   ]
 })
 export class LoginModule { }

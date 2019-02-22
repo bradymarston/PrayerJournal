@@ -19,6 +19,7 @@ export class LoginComponent implements OnInit {
   error: string;
   loginForm: FormGroup;
   isLoading = false;
+  redirectUrl: any;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -28,7 +29,9 @@ export class LoginComponent implements OnInit {
     this.createForm();
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => this.redirectUrl = params.redirect);
+  }
 
   login() {
     this.isLoading = true;
@@ -39,9 +42,7 @@ export class LoginComponent implements OnInit {
       }))
       .subscribe(credentials => {
         log.debug(`${credentials.username} successfully logged in`);
-        this.route.queryParams.subscribe(
-          params => this.router.navigate([ params.redirect || '/'], { replaceUrl: true })
-        );
+        this.router.navigate([ this.redirectUrl || '/'], { replaceUrl: true });
       }, error => {
         log.debug(`Login error: ${error}`);
         this.error = error;

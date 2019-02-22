@@ -1,0 +1,50 @@
+<div fxFill fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1.5rem" class="mat-typography">
+  <div>
+    <h1 class="mat-display-2" fxLayoutAlign="center" translate>APP_NAME</h1>
+  </div>
+  <div class="register-container" fxLayout="row" fxLayoutAlign="center">
+    <mat-card fxFlex="90%" fxFlex.sm="66%" fxFlex.md="50%" fxFlex.gt-md="33%" class="register-box">
+      <div fxLayout="row" fxLayoutAlign="space-between start">
+        <h1 class="headline">Register</h1>
+        <a mat-icon-button color="warn" [routerLink]="['/login']" queryParamsHandling="preserve">
+          <mat-icon>close</mat-icon>
+        </a>
+      </div>
+      <form (ngSubmit)="register()" [formGroup]="registerForm" novalidate>
+        <div class="register-error" [hidden]="!error || isLoading">
+          Email address already in use.
+        </div>
+        <br />
+        <div fxLayout="column">
+          <mat-form-field>
+            <input type="text" matInput formControlName="email" autocomplete="email"
+                   [placeholder]="'Email Address'" />
+            <mat-error *ngIf="registerForm.controls.email.valid || registerForm.controls.email.untouched">
+              <span>Email address is required</span>
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input type="password" matInput formControlName="password" autocomplete="current-password"
+                   [placeholder]="'Password' | translate" required />
+            <mat-error *ngIf="registerForm.controls.password.valid || registerForm.controls.password.untouched">
+              <span translate>Password is required</span>
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <input type="password" matInput formControlName="confirmPassword" autocomplete="current-password"
+                   [placeholder]="'Confirm Password'" required />
+            <mat-error *ngIf="registerForm.controls.confirmPassword.valid || registerForm.controls.confirmPassword.untouched">
+              <span>Password confirmation is required</span>
+            </mat-error>
+          </mat-form-field>
+          <br />
+          <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid || isLoading">
+            <app-loader class="inline-loader" [isLoading]="isLoading"></app-loader>
+            <span>REGISTER</span>
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  </div>
+</div>
+

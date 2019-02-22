@@ -15,6 +15,12 @@ export interface LoginContext {
   remember?: boolean;
 }
 
+export interface RegistrationContext {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 const credentialsKey = 'credentials';
 
 /**
@@ -39,18 +45,17 @@ export class AuthenticationService {
    * @return The user credentials.
    */
   login(context: LoginContext): Observable<Credentials> {
-    let token = "";
-    // Replace by proper authentication call
-    return this._http.disableApiPrefix().post("account/login", { email: context.username, password: context.password }, { responseType: 'text' })
-      .pipe(map(t => {
-        token = t;
-        const credentials = {
-          username: context.username,
-          token: '123456'
-        };
-        this.setCredentials(credentials, context.remember);
-        return credentials;
-      }));
+    return this._http
+      .disableApiPrefix()
+      .post("account/login", { email: context.username, password: context.password }, { responseType: 'text' })
+      .pipe(map(token => this.processToken(token, context.username, context.remember)));
+  }
+
+  register(context: RegistrationContext): Observable<Credentials> {
+    return this._http
+      .disableApiPrefix()
+      .post("account/register", context, { responseType: 'text' })
+      .pipe(map(token => this.processToken(token, context.email, true)));
   }
 
   /**
@@ -98,4 +103,13 @@ export class AuthenticationService {
     }
   }
 
+  private processToken(token: string, userName: string, remember: boolean) : Credentials {
+    const credentials = {
+      username: userName,
+      token: token
+    };
+    this.setCredentials(credentials, remember);
+
+    return credentials;
+  }
 }
