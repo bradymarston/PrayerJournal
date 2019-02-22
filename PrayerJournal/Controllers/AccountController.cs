@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using PrayerJournal.Controllers.Dtos;
+using PrayerJournal.Controllers.Extensions;
 using PrayerJournal.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace PrayerJournal.Controllers
 {
+    [ApiController]
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
@@ -43,26 +45,30 @@ namespace PrayerJournal.Controllers
                 return GenerateJwtToken(model.Email, appUser);
             }
 
-            throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
+            return this.BadModel("", "Incorrect email or password.");
         }
 
         [HttpPost]
-        public async Task<object> Register([FromBody] RegisterDto model)
+        public async Task<object> Register([FromBody] RegisterDto registration)
         {
+            if (await _userManager.FindByNameAsync(registration.Email) != null)
+                return this.BadModel("Email", "Email already in use.");
+
             var user = new ApplicationUser
             {
-                UserName = model.Email,
-                Email = model.Email
+                UserName = registration.Email,
+                Email = registration.Email
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
+
+            var result = await _userManager.CreateAsync(user, registration.Password);
 
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
-                return GenerateJwtToken(model.Email, user);
+                return GenerateJwtToken(registration.Email, user);
             }
 
-            throw new ApplicationException("UNKNOWN_ERROR");
+            return ProcessIdentityResult(result);
         }
 
         private object GenerateJwtToken(string email, IdentityUser user)
@@ -87,6 +93,18 @@ namespace PrayerJournal.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private IActionResult ProcessIdentityResult(IdentityResult result, object data = null)
+        {
+            if (result.Succeeded)
+                return Ok(data);
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return this.BadModel();
         }
     }
 }
