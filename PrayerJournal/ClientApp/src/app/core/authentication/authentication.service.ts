@@ -27,7 +27,7 @@ export interface ChangePasswordContext {
   confirmPassword: string;
 }
 
-const credentialsKey = 'credentials';
+export const credentialsKey = 'credentials';
 
 /**
  * Provides a base for authentication workflow.
@@ -67,7 +67,7 @@ export class AuthenticationService {
   changePassword(context: ChangePasswordContext): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .put("account/changePassword", context);
+      .put("account/password", context);
   }
 
   /**

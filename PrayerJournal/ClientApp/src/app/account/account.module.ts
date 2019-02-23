@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
-import { CoreModule } from '@app/core';
 import { SharedModule } from '@app/shared';
 import { MaterialModule } from '@app/material.module';
 import { AccountRoutingModule } from './account-routing.module';
@@ -12,8 +12,8 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
 @NgModule({
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     TranslateModule,
-    CoreModule,
     SharedModule,
     FlexLayoutModule,
     MaterialModule,

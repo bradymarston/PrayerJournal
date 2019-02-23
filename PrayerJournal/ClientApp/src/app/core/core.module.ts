@@ -12,6 +12,9 @@ import { HttpCacheService } from './http/http-cache.service';
 import { ApiPrefixInterceptor } from './http/api-prefix.interceptor';
 import { ErrorHandlerInterceptor } from './http/error-handler.interceptor';
 import { CacheInterceptor } from './http/cache.interceptor';
+import { AuthorizationInterceptor } from './http/authorization.interceptor';
+import { AuthorizationService } from './authorizationService/authorization.service';
+import { MatSnackBar } from '@angular/material';
 
 @NgModule({
   imports: [
@@ -21,11 +24,14 @@ import { CacheInterceptor } from './http/cache.interceptor';
     RouterModule
   ],
   providers: [
+    MatSnackBar,
     AuthenticationService,
     AuthenticationGuard,
+    AuthorizationService,
     I18nService,
     HttpCacheService,
     ApiPrefixInterceptor,
+    AuthorizationInterceptor,
     ErrorHandlerInterceptor,
     CacheInterceptor,
     {

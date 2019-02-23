@@ -76,6 +76,7 @@ namespace PrayerJournal.Controllers
         }
 
         [HttpPut("password")]
+        [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto passwords)
         {
             var userName = HttpContext.GetCurrentUserName();

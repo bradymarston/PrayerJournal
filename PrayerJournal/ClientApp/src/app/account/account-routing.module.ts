@@ -3,13 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { extract } from '@app/core';
 import { ChangePasswordComponent } from './change-password/change-password.component';
-import { Shell } from '@app/shell/shell.service';
 
 const routes: Routes = [
-  Shell.childRoutes([
-    { path: '', redirectTo: '/change-password', pathMatch: 'full' },
-    { path: 'change-password', component: ChangePasswordComponent, data: { title: extract('change-password') } }
-  ])
+  // Module is lazy loaded, see app-routing.module.ts
+  { path: 'change-password', component: ChangePasswordComponent, data: { title: extract('Change Password') } }
 ];
 
 @NgModule({
