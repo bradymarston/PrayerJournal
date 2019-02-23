@@ -21,6 +21,12 @@ export interface RegistrationContext {
   confirmPassword: string;
 }
 
+export interface ChangePasswordContext {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 const credentialsKey = 'credentials';
 
 /**
@@ -56,6 +62,12 @@ export class AuthenticationService {
       .disableApiPrefix()
       .post("account/register", context, { responseType: 'text' })
       .pipe(map(token => this.processToken(token, context.email, true)));
+  }
+
+  changePassword(context: ChangePasswordContext): Observable<any> {
+    return this._http
+      .disableApiPrefix()
+      .put("account/changePassword", context);
   }
 
   /**
