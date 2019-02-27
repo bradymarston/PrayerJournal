@@ -5,12 +5,21 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace PrayerJournal.Controllers.Extensions
 {
     public static class ControllerErrorExtensions
     {
+        public static IActionResult SignInFailure(this ControllerBase controller, Microsoft.AspNetCore.Identity.SignInResult result)
+        {
+            if (!result.IsLockedOut && !result.IsNotAllowed && !result.RequiresTwoFactor)
+                return controller.BadModel("", "Incorrect Username of Password");
+
+            return controller.StatusCode((int)HttpStatusCode.Unauthorized, GenerateProblemDetails(result));
+        }
+
         public static IActionResult IdentityFailure(this ControllerBase controller, IdentityResult result)
         {
             return controller.BadRequest(GenerateProblemDetails(result));
@@ -66,15 +75,42 @@ namespace PrayerJournal.Controllers.Extensions
             return problemDetails;
         }
 
+        private static ProblemDetails GenerateProblemDetails(Microsoft.AspNetCore.Identity.SignInResult result)
+        {
+            var problemDetails = new ProblemDetails()
+            {
+                Type = "SignInError",
+                Title = "One or more errors during sign-in."
+            };
+
+            var reason = "Unknown";
+
+            if (result.RequiresTwoFactor)
+                reason = "TwoFactor";
+
+            if (result.IsLockedOut)
+                reason = "LockedOut";
+
+            problemDetails.AddExtension("Reason", reason);
+            return problemDetails;
+        }
+
         private static void AddErrors(this ProblemDetails problemDetails, IEnumerable<ErrorItem> errors)
         {
-            problemDetails.Extensions.Add("errors", new Dictionary<string, string[]>());
+            var errorExtension = new Dictionary<string, string[]>();
 
             if (errors.Count() > 0)
                 foreach (var error in errors)
                 {
-                    ((Dictionary<string, string[]>)problemDetails.Extensions["errors"]).Add(error.Key, error.Descriptions );
+                    errorExtension.Add(error.Key, error.Descriptions );
                 }
+
+            problemDetails.AddExtension("error", errorExtension);
+        }
+
+        private static void AddExtension(this ProblemDetails problemDetails, string key, object data)
+        {
+            problemDetails.Extensions.Add(key, data);
         }
 
         private class ErrorItem

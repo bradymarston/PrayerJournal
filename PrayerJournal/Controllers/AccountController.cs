@@ -36,20 +36,25 @@ namespace PrayerJournal.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<object> Login([FromBody] LoginDto model)
+        public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, true);
 
             if (result.Succeeded)
             {
                 var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                return GenerateJwtToken(model.Email, appUser);
+                var responseObject = new SignInResultsDto
+                {
+                    Token = GenerateJwtToken(model.Email, appUser)
+                };
+                
+                if (!appUser.EmailConfirmed)
+                    responseObject.Caveat = "ConfirmEmail";
+
+                return Ok(responseObject);
             }
 
-            if (result.IsLockedOut)
-                return this.BadModel("Password", "Your account has been locked out. Please try again in a few minutes.");
-
-            return this.BadModel("", "Incorrect email or password.");
+            return this.SignInFailure(result);
         }
 
         [HttpPost("register")]
@@ -90,7 +95,7 @@ namespace PrayerJournal.Controllers
             return this.IdentityFailure(result);
         }
 
-        private object GenerateJwtToken(string email, IdentityUser user)
+        private string GenerateJwtToken(string email, IdentityUser user)
         {
             var claims = new List<Claim>
         {
