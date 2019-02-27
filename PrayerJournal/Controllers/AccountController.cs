@@ -38,7 +38,7 @@ namespace PrayerJournal.Controllers
         [HttpPost("login")]
         public async Task<object> Login([FromBody] LoginDto model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, true);
 
             if (result.Succeeded)
             {
@@ -72,7 +72,7 @@ namespace PrayerJournal.Controllers
                 return GenerateJwtToken(registration.Email, user);
             }
 
-            return ProcessIdentityResult(result);
+            return this.IdentityFailure(result);
         }
 
         [HttpPut("password")]
@@ -87,7 +87,7 @@ namespace PrayerJournal.Controllers
             if (result.Succeeded)
                 return Ok();
 
-            return ProcessIdentityResult(result);
+            return this.IdentityFailure(result);
         }
 
         private object GenerateJwtToken(string email, IdentityUser user)
@@ -112,18 +112,6 @@ namespace PrayerJournal.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        private IActionResult ProcessIdentityResult(IdentityResult result, object data = null)
-        {
-            if (result.Succeeded)
-                return Ok(data);
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-            return this.BadModel();
         }
     }
 }

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System;
+using PrayerJournal.Controllers.Extensions;
 
 namespace PrayerJournal
 {
@@ -35,6 +36,8 @@ namespace PrayerJournal
 
             services.AddMvc()
                 .AddNewtonsoftJson();
+
+            services.ConfigureAutomaticValidationResponse();
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
