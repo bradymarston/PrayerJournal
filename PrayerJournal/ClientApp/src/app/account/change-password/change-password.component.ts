@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
-import { Logger, I18nService, AuthenticationService } from '@app/core';
+import { Logger, I18nService, AuthenticationService, AuthorizationService } from '@app/core';
 import { MatSnackBar } from '@angular/material';
 
 const log = new Logger('Change Password');
@@ -24,6 +24,7 @@ export class ChangePasswordComponent implements OnInit {
               private formBuilder: FormBuilder,
               private i18nService: I18nService,
               private authenticationService: AuthenticationService,
+              private authorizationService: AuthorizationService,
               private snackBar: MatSnackBar) {
     this.createForm();
   }
@@ -38,7 +39,7 @@ export class ChangePasswordComponent implements OnInit {
         this.isLoading = false;
       }))
       .subscribe(() => {
-        log.debug(`${this.authenticationService.credentials.username} successfully changed their password`);
+        log.debug(`${this.authorizationService.credentials.username} successfully changed their password`);
         this.snackBar.open("Password successfully changed", "DISMISS");
         this.route.queryParams.subscribe(
           params => this.router.navigate([params.redirect || '/'], { replaceUrl: true })

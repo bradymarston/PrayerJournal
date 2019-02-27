@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ObservableMedia } from '@angular/flex-layout';
 
-import { AuthenticationService, I18nService } from '@app/core';
+import { AuthorizationService, I18nService, AuthenticationService } from '@app/core';
 
 @Component({
   selector: 'app-shell',
@@ -15,6 +15,7 @@ export class ShellComponent implements OnInit {
   constructor(private router: Router,
               private titleService: Title,
               private media: ObservableMedia,
+              private authorizationService: AuthorizationService,
               private authenticationService: AuthenticationService,
               private i18nService: I18nService) { }
 
@@ -30,7 +31,7 @@ export class ShellComponent implements OnInit {
   }
 
   get username(): string | null {
-    const credentials = this.authenticationService.credentials;
+    const credentials = this.authorizationService.credentials;
     return credentials ? credentials.username : null;
   }
 

@@ -13,7 +13,7 @@ import { ApiPrefixInterceptor } from './http/api-prefix.interceptor';
 import { ErrorHandlerInterceptor } from './http/error-handler.interceptor';
 import { CacheInterceptor } from './http/cache.interceptor';
 import { AuthorizationInterceptor } from './http/authorization.interceptor';
-import { AuthorizationService } from './authorizationService/authorization.service';
+import { AuthorizationService } from './authorization/authorization.service';
 import { MatSnackBar } from '@angular/material';
 
 @NgModule({

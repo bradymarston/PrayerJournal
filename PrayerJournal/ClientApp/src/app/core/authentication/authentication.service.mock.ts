@@ -1,6 +1,7 @@
 import { Observable, of } from 'rxjs';
 
-import { Credentials, LoginContext } from './authentication.service';
+import { LoginContext } from './authentication.service';
+import { Credentials } from '../authorization/authorization.service';
 
 export class MockAuthenticationService {
 
