@@ -8,5 +8,6 @@ namespace PrayerJournal.Core.Models
 {
     public class ApplicationUser : IdentityUser
     {
+        public bool SuggestPasswordChange { get; set; }
     }
 }

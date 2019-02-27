@@ -45,9 +45,13 @@ namespace PrayerJournal.Controllers
                 var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
                 var responseObject = new SignInResultsDto
                 {
-                    Token = GenerateJwtToken(model.Email, appUser)
+                    Token = GenerateJwtToken(model.Email, appUser),
+                    UserName = model.Email
                 };
-                
+
+                if (appUser.SuggestPasswordChange)
+                    responseObject.Caveat = "ChangePassword";
+
                 if (!appUser.EmailConfirmed)
                     responseObject.Caveat = "ConfirmEmail";
 
