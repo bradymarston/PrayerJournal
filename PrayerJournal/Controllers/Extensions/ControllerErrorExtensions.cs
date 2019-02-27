@@ -14,10 +14,14 @@ namespace PrayerJournal.Controllers.Extensions
     {
         public static IActionResult SignInFailure(this ControllerBase controller, Microsoft.AspNetCore.Identity.SignInResult result)
         {
-            if (!result.IsLockedOut && !result.IsNotAllowed && !result.RequiresTwoFactor)
-                return controller.BadModel("", "Incorrect Username of Password");
+            var problemDetails = GenerateProblemDetails(result);
 
-            return controller.StatusCode((int)HttpStatusCode.Unauthorized, GenerateProblemDetails(result));
+            if ((string)problemDetails.Extensions["Reason"] == "InvalidSignIn")
+            {
+                return controller.BadRequest(problemDetails);
+            }
+
+            return controller.Unauthorized(problemDetails);
         }
 
         public static IActionResult IdentityFailure(this ControllerBase controller, IdentityResult result)
@@ -83,7 +87,7 @@ namespace PrayerJournal.Controllers.Extensions
                 Title = "One or more errors during sign-in."
             };
 
-            var reason = "Unknown";
+            var reason = "InvalidSignIn";
 
             if (result.RequiresTwoFactor)
                 reason = "TwoFactor";
@@ -92,6 +96,17 @@ namespace PrayerJournal.Controllers.Extensions
                 reason = "LockedOut";
 
             problemDetails.AddExtension("Reason", reason);
+
+            if (reason == "InvalidSignIn")
+                problemDetails.AddErrors(new List<ErrorItem>()
+                {
+                    new ErrorItem()
+                    {
+                        Key = "Credentials",
+                        Descriptions = new string[] { "Invalid email address or password." }
+                    }
+                });
+
             return problemDetails;
         }
 
@@ -105,7 +120,7 @@ namespace PrayerJournal.Controllers.Extensions
                     errorExtension.Add(error.Key, error.Descriptions );
                 }
 
-            problemDetails.AddExtension("error", errorExtension);
+            problemDetails.AddExtension("errors", errorExtension);
         }
 
         private static void AddExtension(this ProblemDetails problemDetails, string key, object data)
