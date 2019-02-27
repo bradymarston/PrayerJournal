@@ -20,7 +20,7 @@ export class AuthorizationInterceptor implements HttpInterceptor {
    */
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!this._authorizationService.isAuthenticated) {
+    if (!!this._authorizationService.isAuthenticated) {
       return next.handle(request);
     }
 

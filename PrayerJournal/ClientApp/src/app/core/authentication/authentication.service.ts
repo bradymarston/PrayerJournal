@@ -22,6 +22,12 @@ export interface ChangePasswordContext {
   confirmPassword: string;
 }
 
+interface SignInResult {
+  userName: string;
+  caveat: string;
+  token: string;
+}
+
 /**
  * Provides a base for authentication workflow.
  * The Credentials interface as well as login/logout methods should be replaced with proper implementation.
@@ -40,8 +46,8 @@ export class AuthenticationService {
   login(context: LoginContext): Observable<Credentials> {
     return this._http
       .disableApiPrefix()
-      .post("account/login", { email: context.username, password: context.password }, { responseType: 'text' })
-      .pipe(map(token => this.processToken(token, context.username, context.remember)));
+      .post<SignInResult>("account/login", { email: context.username, password: context.password })
+      .pipe(map(result => this.processToken(result.token, context.username, context.remember)));
   }
 
   register(context: RegistrationContext): Observable<Credentials> {
