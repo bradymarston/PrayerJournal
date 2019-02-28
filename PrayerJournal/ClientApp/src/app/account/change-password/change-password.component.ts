@@ -3,8 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
-import { Logger, I18nService, AuthenticationService, AuthorizationService } from '@app/core';
-import { MatSnackBar } from '@angular/material';
+import { Logger, I18nService, AuthenticationService, AuthorizationService, NotificationsService } from '@app/core';
 
 const log = new Logger('Change Password');
 
@@ -18,6 +17,7 @@ export class ChangePasswordComponent implements OnInit {
   error: string;
   changePasswordForm: FormGroup;
   isLoading = false;
+  sentForCaveat = false;
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -25,11 +25,16 @@ export class ChangePasswordComponent implements OnInit {
               private i18nService: I18nService,
               private authenticationService: AuthenticationService,
               private authorizationService: AuthorizationService,
-              private snackBar: MatSnackBar) {
+              private notifications: NotificationsService) {
     this.createForm();
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    if (this.authorizationService.credentials.caveat === "ChangePassword") {
+      this.sentForCaveat = true;
+      this.authorizationService.clearCaveat();
+    }
+  }
 
   changePassword() {
     this.isLoading = true;
@@ -40,7 +45,7 @@ export class ChangePasswordComponent implements OnInit {
       }))
       .subscribe(() => {
         log.debug(`${this.authorizationService.credentials.username} successfully changed their password`);
-        this.snackBar.open("Password successfully changed", "DISMISS");
+        this.notifications.showMessage("Password successfully changed");
         this.route.queryParams.subscribe(
           params => this.router.navigate([params.redirect || '/'], { replaceUrl: true })
         );

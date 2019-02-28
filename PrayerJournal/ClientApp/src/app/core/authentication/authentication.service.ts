@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import { Credentials, AuthorizationService } from '../authorization/authorization.service';
+import { AuthorizationService } from '../authorization.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 export interface LoginContext {
   username: string;
@@ -36,31 +37,45 @@ interface SignInResult {
 export class AuthenticationService {
 
 
-  constructor(private _http: HttpClient, private _authorizationService: AuthorizationService) { }
+  constructor(private _http: HttpClient, private _authorizationService: AuthorizationService, private _router: Router, private _activatedRoute: ActivatedRoute) { }
 
   /**
    * Authenticates the user.
    * @param context The login parameters.
    * @return The user credentials.
    */
-  login(context: LoginContext): Observable<Credentials> {
+  login(context: LoginContext): Observable<SignInResult> {
     return this._http
       .disableApiPrefix()
       .post<SignInResult>("account/login", { email: context.username, password: context.password })
-      .pipe(map(result => this.processToken(result.token, context.username, context.remember)));
+      .pipe(map(result => this.processToken(result, context.remember)));
   }
 
-  register(context: RegistrationContext): Observable<Credentials> {
+  register(context: RegistrationContext): Observable<SignInResult> {
     return this._http
       .disableApiPrefix()
-      .post("account/register", context, { responseType: 'text' })
-      .pipe(map(token => this.processToken(token, context.email, true)));
+      .post<SignInResult>("account/register", context)
+      .pipe(map(result => this.processToken(result, false)));
   }
 
   changePassword(context: ChangePasswordContext): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .put("account/password", context);
+      .put<SignInResult>("account/password", context)
+      .pipe(map(result => this.processToken(result, this._authorizationService.isRemembered)));
+  }
+
+  confirmEmail(userId: string, code: string) {
+    return this._http
+      .disableApiPrefix()
+      .put<SignInResult>("account/confirm-email?userId=" + userId + "&code=" + code, null)
+      .pipe(map(result => this.processToken(result, false)));
+  }
+
+  sendEmailConfirmation(): Observable<any> {
+    return this._http
+      .disableApiPrefix()
+      .get("account/confirm-email");
   }
 
   /**
@@ -73,13 +88,20 @@ export class AuthenticationService {
     return of(true);
   }
 
-  private processToken(token: string, userName: string, remember: boolean) : Credentials {
+  private processToken(signInResult: SignInResult, remember: boolean) : SignInResult {
     const credentials = {
-      username: userName,
-      token: token
+      username: signInResult.userName,
+      caveat: signInResult.caveat,
+      token: signInResult.token
     };
+
     this._authorizationService.setCredentials(credentials, remember);
 
-    return credentials;
+    if (signInResult.caveat === "ChangePassword") {
+      this._router.navigate(["/account/change-password"], { queryParamsHandling: "preserve" });
+      return signInResult;
+    }
+
+    return signInResult;
   }
 }

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 export interface Credentials {
   // Customize received credentials here
   username: string;
+  caveat: string;
   token: string;
 }
 
@@ -15,9 +16,16 @@ export const credentialsKey = 'credentials';
 export class AuthorizationService {
 
   private _credentials: Credentials | null;
+  private _isRemembered: boolean;
 
   constructor() {
-    const savedCredentials = sessionStorage.getItem(credentialsKey) || localStorage.getItem(credentialsKey);
+    let storedCredentials = localStorage.getItem(credentialsKey);
+    let tempCredentials = sessionStorage.getItem(credentialsKey);
+
+    if (storedCredentials)
+      this._isRemembered = true;
+
+    const savedCredentials = this._isRemembered ? storedCredentials : tempCredentials;
     if (savedCredentials) {
       this._credentials = JSON.parse(savedCredentials);
     }
@@ -39,6 +47,10 @@ export class AuthorizationService {
     return this._credentials;
   }
 
+  get isRemembered(): boolean {
+    return this._isRemembered;
+  }
+
   /**
    * Sets the user credentials.
    * The credentials may be persisted across sessions by setting the `remember` parameter to true.
@@ -48,6 +60,9 @@ export class AuthorizationService {
    */
   public setCredentials(credentials?: Credentials, remember?: boolean) {
     this._credentials = credentials || null;
+    this._isRemembered = remember;
+
+    console.log(JSON.stringify(credentials));
 
     if (credentials) {
       const storage = remember ? localStorage : sessionStorage;
@@ -56,5 +71,10 @@ export class AuthorizationService {
       sessionStorage.removeItem(credentialsKey);
       localStorage.removeItem(credentialsKey);
     }
+  }
+
+  public clearCaveat() {
+    this.credentials.caveat = null;
+    this.setCredentials(this.credentials, this.isRemembered);
   }
 }

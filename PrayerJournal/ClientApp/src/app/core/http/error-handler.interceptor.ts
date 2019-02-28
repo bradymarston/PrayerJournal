@@ -5,7 +5,7 @@ import { catchError } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
 import { Logger } from '../logger.service';
-import { MatSnackBar } from '@angular/material';
+import { NotificationsService } from '../notifications.service';
 
 const log = new Logger('ErrorHandlerInterceptor');
 
@@ -15,7 +15,7 @@ const log = new Logger('ErrorHandlerInterceptor');
 @Injectable()
 export class ErrorHandlerInterceptor implements HttpInterceptor {
 
-  constructor(private snackBar: MatSnackBar) { }
+  constructor(private _notifications: NotificationsService) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(catchError(error => this.errorHandler(error)));
@@ -29,10 +29,9 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
     }
 
     if (response.status === 0)
-      this.snackBar.open("Network error: " + response.message, "DISMISS");
+      this._notifications.showMessage("Network error: " + response.message);
 
     if (response.error.errors) {
-      console.log("Made it here");
       for (let key in response.error.errors)
         console.log(key + ": " + response.error.errors[key]);
     }

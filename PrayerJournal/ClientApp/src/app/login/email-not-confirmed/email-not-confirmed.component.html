@@ -1,0 +1,18 @@
+<div fxFill fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1.5rem" class="mat-typography">
+  <div>
+    <h1 class="mat-display-2" fxLayoutAlign="center" translate>APP_NAME</h1>
+  </div>
+  <div class="email-not-confirmed-container" fxLayout="row" fxLayoutAlign="center">
+    <mat-card fxFlex="90%" fxFlex.sm="66%" fxFlex.md="50%" fxFlex.gt-md="33%" class="register-box">
+      <h1 class="headline">Confirm Email Address</h1>
+      We sent a confirmation email. Please look for the email and follow the instructions. <br />
+      <br />
+      <button mat-raised-button color="primary" (click)="logout()">
+        LOGOUT
+      </button>
+      <button mat-raised-button (click)="resendEmail()">
+        RESEND CONFIRMATION EMAIL
+      </button>
+    </mat-card>
+  </div>
+</div>

@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
-import { Logger, I18nService, AuthenticationService } from '@app/core';
+import { Logger, I18nService, AuthenticationService, NotificationsService } from '@app/core';
 
 const log = new Logger('Login');
 
@@ -24,7 +24,8 @@ export class RegisterComponent implements OnInit {
               private route: ActivatedRoute,
               private formBuilder: FormBuilder,
               private i18nService: I18nService,
-              private authenticationService: AuthenticationService) {
+              private authenticationService: AuthenticationService,
+              private notifications: NotificationsService) {
     this.createForm();
   }
 
@@ -38,7 +39,8 @@ export class RegisterComponent implements OnInit {
         this.isLoading = false;
       }))
       .subscribe(credentials => {
-        log.debug(`${credentials.username} successfully logged in`);
+        log.debug(`${credentials.userName} successfully logged in`);
+        this.notifications.showMessage("Registered " + credentials.userName);
         this.route.queryParams.subscribe(
           params => this.router.navigate([ params.redirect || '/'], { replaceUrl: true })
         );

@@ -29,6 +29,13 @@ namespace PrayerJournal.Controllers.Extensions
             return controller.BadRequest(GenerateProblemDetails(result));
         }
 
+        public static IActionResult IdentityFailure(this ControllerBase controller, string code, string description)
+        {
+            var result = IdentityResult.Failed(new IdentityError() { Code = code, Description = description });
+
+            return controller.BadRequest(GenerateProblemDetails(result));
+        }
+
         public static IActionResult BadModel(this ControllerBase controller, string key, string errorMessage)
         {
             controller.ModelState.AddModelError(key, errorMessage);

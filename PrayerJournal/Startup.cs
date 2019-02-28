@@ -15,6 +15,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System;
 using PrayerJournal.Controllers.Extensions;
+using PrayerJournal.Core;
+using PrayerJournal.Services;
 
 namespace PrayerJournal
 {
@@ -64,6 +66,7 @@ namespace PrayerJournal
             });
 
             services.AddUnitOfWork<UnitOfWork>();
+            services.AddScoped<IEmailSender, EmailSender>();
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

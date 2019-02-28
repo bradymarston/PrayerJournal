@@ -9,6 +9,8 @@ import { MaterialModule } from '@app/material.module';
 import { LoginRoutingModule } from './login-routing.module';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
+import { EmailNotConfirmedComponent } from './email-not-confirmed/email-not-confirmed.component';
 
 @NgModule({
   imports: [
@@ -22,7 +24,9 @@ import { RegisterComponent } from './register/register.component';
   ],
   declarations: [
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    ConfirmEmailComponent,
+    EmailNotConfirmedComponent
   ]
 })
 export class LoginModule { }
