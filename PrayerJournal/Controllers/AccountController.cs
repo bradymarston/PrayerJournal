@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using PrayerJournal.Authentication;
 using PrayerJournal.Controllers.Dtos;
 using PrayerJournal.Controllers.Extensions;
 using PrayerJournal.Core;
@@ -10,7 +10,6 @@ using PrayerJournal.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -23,32 +22,35 @@ namespace PrayerJournal.Controllers
     [Route("[controller]")]
     public class AccountController : Controller
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IShadySignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IShadyTokenService _tokenService;
         private readonly IEmailSender _emailSender;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            IShadySignInManager<ApplicationUser> signInManager,
             IConfiguration configuration,
+            IShadyTokenService tokenService,
             IEmailSender emailSender
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _tokenService = tokenService;
             _emailSender = emailSender;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto model)
+        public async Task<IActionResult> Login(LoginDto model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, true);
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, true);
 
             if (result.Succeeded)
             {
-                return Ok(GenerateSignInResultDto(model.Email));
+                return Ok(await GenerateSignInResultDtoAsync(model.Email, result.Token));
             }
 
             return this.SignInFailure(result);
@@ -71,8 +73,8 @@ namespace PrayerJournal.Controllers
             {
                 await SendEmailTokenAsync(user);
 
-                await _signInManager.SignInAsync(user, false);
-                return Ok(GenerateSignInResultDto(user.UserName));
+                var token = _signInManager.SignIn(user);
+                return Ok(await GenerateSignInResultDtoAsync(user.UserName, token));
             }
 
             return this.IdentityFailure(result);
@@ -82,8 +84,7 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> GetEmailConfirmationCode()
         {
-            var userName = HttpContext.GetCurrentUserName();
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = this.GetAuthenticatedUser<ApplicationUser>();
 
             if (string.IsNullOrWhiteSpace(user.Email))
             {
@@ -111,8 +112,8 @@ namespace PrayerJournal.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, code);
             if (result.Succeeded)
             {
-                await _signInManager.SignInAsync(user, false);
-                return Ok(GenerateSignInResultDto(user.UserName));
+                var token =_signInManager.SignIn(user);
+                return Ok(await GenerateSignInResultDtoAsync(user.UserName, token));
             }
 
             return this.IdentityFailure(result);
@@ -122,8 +123,7 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto passwords)
         {
-            var userName = HttpContext.GetCurrentUserName();
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = this.GetAuthenticatedUser<ApplicationUser>();
 
             var result = await _userManager.ChangePasswordAsync(user, passwords.OldPassword, passwords.NewPassword);
 
@@ -136,31 +136,50 @@ namespace PrayerJournal.Controllers
                 await _userManager.UpdateAsync(user);
             }
 
-            return Ok(GenerateSignInResultDto(user.UserName));
+            return Ok(await GenerateSignInResultDtoAsync(user.UserName, _tokenService.GenerateTokenString(user.UserName)));
         }
 
-        private string GenerateJwtToken(string userName, IdentityUser user)
+        [HttpGet("password/{email}")]
+        public async Task<IActionResult> ForgotPassword(string email)
         {
-            var claims = new List<Claim>
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+                // Don't reveal that the user does not exist or is not confirmed
+                return Ok();
+            }
+
+            await SendPasswordTokenAsync(user);
+
+            return Ok();
+        }
+
+        [HttpPost("password/{code}")]
+        public async Task<IActionResult> ResetPassword(string code, ResetPasswordDto model)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id)
-        };
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return Ok();
+            }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"]));
+            var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
 
-            var token = new JwtSecurityToken(
-                _configuration["JwtIssuer"],
-                _configuration["JwtIssuer"],
-                claims,
-                expires: expires,
-                signingCredentials: creds
-            );
+            return this.IdentityFailure(result);
+        }
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+        private async Task SendPasswordTokenAsync(ApplicationUser user)
+        {
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var callbackUrl = $"{Request.Scheme}://{Request.Host}/reset-password?code={Uri.EscapeDataString(Uri.EscapeDataString(code))}";
+
+            await _emailSender.SendEmailAsync(user.Email, "Reset Password",
+                $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         }
 
         private async Task SendEmailTokenAsync(ApplicationUser user)
@@ -173,19 +192,19 @@ namespace PrayerJournal.Controllers
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         }
 
-        private SignInResultsDto GenerateSignInResultDto(string userName)
+        private async Task<SignInResultsDto> GenerateSignInResultDtoAsync(string userName, string token)
         {
             var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == userName);
             var responseObject = new SignInResultsDto
             {
-                Token = GenerateJwtToken(userName, appUser),
+                Token = token,
                 UserName = userName
             };
 
             if (appUser.SuggestPasswordChange)
                 responseObject.Caveat = "ChangePassword";
 
-            if (!appUser.EmailConfirmed)
+            if (!await _userManager.IsEmailConfirmedAsync(appUser))
                 responseObject.Caveat = "ConfirmEmail";
 
             return responseObject;
