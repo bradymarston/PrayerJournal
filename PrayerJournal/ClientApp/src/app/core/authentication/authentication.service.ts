@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { AuthorizationService } from '../authorization.service';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ResetPasswordComponent } from '../../login/reset-password/reset-password.component';
 
 export interface LoginContext {
   username: string;
@@ -20,6 +21,12 @@ export interface RegistrationContext {
 export interface ChangePasswordContext {
   oldPassword: string;
   newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ResetPasswordContext {
+  email: string;
+  password: string;
   confirmPassword: string;
 }
 
@@ -76,6 +83,22 @@ export class AuthenticationService {
     return this._http
       .disableApiPrefix()
       .get("account/confirm-email");
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this._http
+      .disableApiPrefix()
+      .get("account/password/" + email);
+  }
+
+  resetPassword(context: ResetPasswordContext, code: string): Observable<SignInResult> {
+    return this._http
+      .disableApiPrefix()
+      .post<SignInResult>("account/password?code=" + code, context)
+      .pipe(map(result => {
+        if (result)
+          return this.processToken(result, false);
+    }));
   }
 
   /**

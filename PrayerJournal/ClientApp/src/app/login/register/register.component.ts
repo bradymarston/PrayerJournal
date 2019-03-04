@@ -6,7 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { environment } from '@env/environment';
 import { Logger, I18nService, AuthenticationService, NotificationsService } from '@app/core';
 
-const log = new Logger('Login');
+const log = new Logger('Register');
 
 @Component({
   selector: 'app-register',

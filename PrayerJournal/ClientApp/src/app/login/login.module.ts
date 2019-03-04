@@ -11,6 +11,9 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { ConfirmEmailComponent } from './confirm-email/confirm-email.component';
 import { EmailNotConfirmedComponent } from './email-not-confirmed/email-not-confirmed.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ConfirmForgotPasswordComponent } from './confirm-forgot-password/confirm-forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 @NgModule({
   imports: [
@@ -26,7 +29,10 @@ import { EmailNotConfirmedComponent } from './email-not-confirmed/email-not-conf
     LoginComponent,
     RegisterComponent,
     ConfirmEmailComponent,
-    EmailNotConfirmedComponent
+    EmailNotConfirmedComponent,
+    ForgotPasswordComponent,
+    ConfirmForgotPasswordComponent,
+    ResetPasswordComponent
   ]
 })
 export class LoginModule { }

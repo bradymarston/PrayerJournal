@@ -154,8 +154,8 @@ namespace PrayerJournal.Controllers
             return Ok();
         }
 
-        [HttpPost("password/{code}")]
-        public async Task<IActionResult> ResetPassword(string code, ResetPasswordDto model)
+        [HttpPost("password")]
+        public async Task<IActionResult> ResetPassword([Required] string code, ResetPasswordDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
@@ -166,7 +166,8 @@ namespace PrayerJournal.Controllers
             var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
             if (result.Succeeded)
             {
-                return Ok();
+                var token = _signInManager.SignIn(user);
+                return Ok(await GenerateSignInResultDtoAsync(user.UserName, token));
             }
 
             return this.IdentityFailure(result);
