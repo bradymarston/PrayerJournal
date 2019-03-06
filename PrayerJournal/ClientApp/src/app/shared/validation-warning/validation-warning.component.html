@@ -1,0 +1,31 @@
+<ng-container *ngIf="control.touched && control.errors">
+    <ng-container *ngIf="control.errors.required">
+        {{ controlTitle }} is required.
+    </ng-container>
+    <ng-container *ngIf="control.errors.minlength && !(control.errors.required)">
+        {{ controlTitle }} must be at least {{control.errors.minlength.requiredLength}} characters.
+    </ng-container>
+    <ng-container *ngIf="control.errors.maxlength">
+        {{ controlTitle }} cannot be longer than {{control.errors.maxlength.requiredLength}} characters.
+    </ng-container>
+    <ng-container *ngIf="control.errors.pattern && !(control.errors.maxlength)">
+        {{ controlTitle }} {{ patternText }}
+    </ng-container>
+    <ng-container *ngIf="control.errors.uniqueUserName">
+        {{ controlTitle }} {{ control.value }} is already taken.
+    </ng-container>
+    <ng-container *ngIf="control.errors.passwordsMatch">
+        {{ controlTitle }}s do not match.
+    </ng-container>
+    <ng-container *ngIf="control.errors.organizationExists">
+        {{ control.value}} is not a valid church id.
+    </ng-container>
+    <ng-container *ngIf="control.errors.numeric && !(control.errors.required)">
+        {{ controlTitle }} must be a number.
+    </ng-container>
+</ng-container>
+<ng-container *ngIf="control.errors">
+    <ng-container *ngIf="control.errors.uniquePhone">
+        {{ control.value }} is already used.
+    </ng-container>
+</ng-container>

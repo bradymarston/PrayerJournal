@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
 import { Logger, I18nService, AuthenticationService, NotificationsService } from '@app/core';
+import { PasswordValidators } from '../../common/validators/password.validators';
+import { PasswordMatchErrorMatcher } from '../../core/error-matchers/PasswordMatchErrorMatcher';
 
 const log = new Logger('Register');
 
@@ -17,8 +19,10 @@ export class RegisterComponent implements OnInit {
 
   version: string = environment.version;
   error: string;
-  registerForm: FormGroup;
+  form: FormGroup;
   isLoading = false;
+
+  passwordMatchErrorMatcher = new PasswordMatchErrorMatcher();
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -33,9 +37,9 @@ export class RegisterComponent implements OnInit {
 
   register() {
     this.isLoading = true;
-    this.authenticationService.register(this.registerForm.value)
+    this.authenticationService.register(this.form.value)
       .pipe(finalize(() => {
-        this.registerForm.markAsPristine();
+        this.form.markAsPristine();
         this.isLoading = false;
       }))
       .subscribe(credentials => {
@@ -59,11 +63,11 @@ export class RegisterComponent implements OnInit {
   }
 
   private createForm() {
-    this.registerForm = this.formBuilder.group({
+    this.form = this.formBuilder.group({
       email: ['', Validators.required],
       password: ['', Validators.required],
-      confirmPassword: ['', Validators.required]
-    });
+      confirmPassword: ['']
+    }, { validators: [PasswordValidators.passwordsMatch] });
   }
 
 }

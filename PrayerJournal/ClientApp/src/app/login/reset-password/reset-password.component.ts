@@ -3,6 +3,8 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthenticationService, Logger, NotificationsService } from '../../core';
 import { finalize } from 'rxjs/operators';
+import { PasswordValidators } from '../../common/validators/password.validators';
+import { PasswordMatchErrorMatcher } from '../../core/error-matchers/PasswordMatchErrorMatcher';
 
 const log = new Logger('Reset Password');
 
@@ -14,9 +16,11 @@ const log = new Logger('Reset Password');
 export class ResetPasswordComponent implements OnInit {
 
   error: string;
-  resetPasswordForm: FormGroup;
+  form: FormGroup;
   isLoading = false;
   code: string;
+
+  passwordMatchErrorMatcher = new PasswordMatchErrorMatcher();
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -36,26 +40,26 @@ export class ResetPasswordComponent implements OnInit {
 
   resetPassword() {
     this.isLoading = true;
-    this.authenticationService.resetPassword(this.resetPasswordForm.value, this.code)
+    this.authenticationService.resetPassword(this.form.value, this.code)
       .pipe(finalize(() => {
-        this.resetPasswordForm.markAsPristine();
+        this.form.markAsPristine();
         this.isLoading = false;
       }))
       .subscribe(() => {
-        log.debug(`${this.resetPasswordForm.controls.email.value} reset password.`);
+        log.debug(`${this.form.controls.email.value} reset password.`);
         this.notifications.showMessage("Password successfully reset")
         this.router.navigate(['/']);
       }, () => {
-        log.debug(`Invalid attempt to reset password by ${this.resetPasswordForm.controls.email.value}`);
+        log.debug(`Invalid attempt to reset password by ${this.form.controls.email.value}`);
         this.router.navigate(['/']);
       });
   }
 
   private createForm() {
-    this.resetPasswordForm = this.formBuilder.group({
+    this.form = this.formBuilder.group({
       email: ['', Validators.required],
       password: ['', Validators.required],
-      confirmPassword: ['', Validators.required]
-    });
+      confirmPassword: ['']
+    }, { validators: [PasswordValidators.passwordsMatch] });
   }
 }

@@ -4,6 +4,8 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
 import { Logger, I18nService, AuthenticationService, AuthorizationService, NotificationsService } from '@app/core';
+import { PasswordValidators } from '../../common/validators/password.validators';
+import { PasswordMatchErrorMatcher } from '../../core/error-matchers/PasswordMatchErrorMatcher';
 
 const log = new Logger('Change Password');
 
@@ -15,9 +17,11 @@ const log = new Logger('Change Password');
 export class ChangePasswordComponent implements OnInit {
 
   error: string;
-  changePasswordForm: FormGroup;
+  form: FormGroup;
   isLoading = false;
   sentForCaveat = false;
+
+  passwordMatchErrorMatcher = new PasswordMatchErrorMatcher();
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -38,9 +42,9 @@ export class ChangePasswordComponent implements OnInit {
 
   changePassword() {
     this.isLoading = true;
-    this.authenticationService.changePassword(this.changePasswordForm.value)
+    this.authenticationService.changePassword(this.form.value)
       .pipe(finalize(() => {
-        this.changePasswordForm.markAsPristine();
+        this.form.markAsPristine();
         this.isLoading = false;
       }))
       .subscribe(() => {
@@ -64,10 +68,10 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   private createForm() {
-    this.changePasswordForm = this.formBuilder.group({
+    this.form = this.formBuilder.group({
       oldPassword: ['', Validators.required],
       newPassword: ['', Validators.required],
-      confirmPassword: ['', Validators.required]
-    });
+      confirmPassword: ['']
+    }, { validators: [PasswordValidators.passwordsMatch] });
   }
 }

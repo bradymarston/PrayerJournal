@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
 
   version: string = environment.version;
   error: string;
-  loginForm: FormGroup;
+  form: FormGroup;
   isLoading = false;
   redirectUrl: any;
 
@@ -35,9 +35,9 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.isLoading = true;
-    this.authenticationService.login(this.loginForm.value)
+    this.authenticationService.login(this.form.value)
       .pipe(finalize(() => {
-        this.loginForm.markAsPristine();
+        this.form.markAsPristine();
         this.isLoading = false;
       }))
       .subscribe(credentials => {
@@ -62,7 +62,7 @@ export class LoginComponent implements OnInit {
   }
 
   private createForm() {
-    this.loginForm = this.formBuilder.group({
+    this.form = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
       remember: true

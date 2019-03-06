@@ -1,46 +1,61 @@
-<div fxFill fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1.5rem" class="mat-typography">
+<div fxFill fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1.5rem"
+     class="mat-typography">
   <div>
-    <h1 class="mat-display-2" fxLayoutAlign="center" translate>APP_NAME</h1>
+    <h1 class="mat-display-2" fxLayoutAlign="center" translate>
+      APP_NAME
+    </h1>
   </div>
   <div class="register-container" fxLayout="row" fxLayoutAlign="center">
-    <mat-card fxFlex="90%" fxFlex.sm="66%" fxFlex.md="50%" fxFlex.gt-md="33%" class="register-box">
+    <mat-card fxFlex="90%" fxFlex.sm="66%" fxFlex.md="50%" fxFlex.gt-md="33%"
+              class="register-box">
       <div fxLayout="row" fxLayoutAlign="space-between start">
-        <h1 class="headline">Register</h1>
-        <a mat-icon-button color="warn" [routerLink]="['/login']" queryParamsHandling="preserve">
-          <mat-icon>close</mat-icon>
+        <h1 class="headline">
+          Register
+        </h1>
+        <a mat-raised-button [routerLink]="['/login']" queryParamsHandling="preserve">
+          BACK TO LOGIN
         </a>
       </div>
-      <form (ngSubmit)="register()" [formGroup]="registerForm" novalidate>
+      <form (ngSubmit)="register()" [formGroup]="form" novalidate>
         <div class="register-error" [hidden]="!error || isLoading">
           Email address already in use.
         </div>
         <br />
         <div fxLayout="column">
           <mat-form-field>
-            <input type="text" matInput formControlName="email" autocomplete="email"
-                   [placeholder]="'Email Address'" />
-            <mat-error *ngIf="registerForm.controls.email.valid || registerForm.controls.email.untouched">
-              <span>Email address is required</span>
+            <input type="text"
+                   matInput formControlName="email" autocomplete="email"
+                   placeholder="Email Address" required />
+            <mat-error>
+              <validation-warning [control]="form.controls.email"
+                                  controlTitle="Email Address">
+              </validation-warning>
             </mat-error>
           </mat-form-field>
           <mat-form-field>
-            <input type="password" matInput formControlName="password" autocomplete="current-password"
-                   [placeholder]="'Password' | translate" required />
-            <mat-error *ngIf="registerForm.controls.password.valid || registerForm.controls.password.untouched">
-              <span translate>Password is required</span>
+            <input type="password"
+                   matInput formControlName="password" autocomplete="current-password"
+                   placeholder="Password" required />
+            <mat-error>
+              <validation-warning [control]="form.controls.password"
+                                  controlTitle="Password">
+              </validation-warning>
             </mat-error>
           </mat-form-field>
           <mat-form-field>
-            <input type="password" matInput formControlName="confirmPassword" autocomplete="current-password"
-                   [placeholder]="'Confirm Password'" required />
-            <mat-error *ngIf="registerForm.controls.confirmPassword.valid || registerForm.controls.confirmPassword.untouched">
-              <span>Password confirmation is required</span>
+            <input type="password" matInput
+                   formControlName="confirmPassword" autocomplete="current-password"
+                   placeholder="Confirm Password"
+                   [errorStateMatcher]="passwordMatchErrorMatcher" required />
+            <mat-error>
+              Passwords do not match.
             </mat-error>
           </mat-form-field>
           <br />
-          <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid || isLoading">
+          <button mat-raised-button color="primary" type="submit"
+                  [disabled]="form.invalid || isLoading">
             <app-loader class="inline-loader" [isLoading]="isLoading"></app-loader>
-            <span>REGISTER</span>
+              REGISTER
           </button>
         </div>
       </form>

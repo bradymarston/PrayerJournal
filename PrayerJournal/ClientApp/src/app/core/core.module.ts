@@ -15,6 +15,7 @@ import { CacheInterceptor } from './http/cache.interceptor';
 import { AuthorizationInterceptor } from './http/authorization.interceptor';
 import { AuthorizationService } from './authorization.service';
 import { NotificationsService } from './notifications.service';
+import { PasswordMatchErrorMatcher } from './error-matchers/PasswordMatchErrorMatcher';
 
 @NgModule({
   imports: [
@@ -33,6 +34,7 @@ import { NotificationsService } from './notifications.service';
     ApiPrefixInterceptor,
     AuthorizationInterceptor,
     ErrorHandlerInterceptor,
+    PasswordMatchErrorMatcher,
     CacheInterceptor,
     {
       provide: HttpClient,

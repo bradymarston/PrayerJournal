@@ -15,7 +15,7 @@ const log = new Logger('Forgot Password');
 })
 export class ForgotPasswordComponent implements OnInit {
 
-  forgotPasswordForm: FormGroup;
+  form: FormGroup;
   isLoading = false;
 
   constructor(private router: Router,
@@ -29,22 +29,22 @@ export class ForgotPasswordComponent implements OnInit {
 
   submitEmail() {
     this.isLoading = true;
-    this.authenticationService.forgotPassword(this.forgotPasswordForm.controls.email.value)
+    this.authenticationService.forgotPassword(this.form.controls.email.value)
       .pipe(finalize(() => {
-        this.forgotPasswordForm.markAsPristine();
+        this.form.markAsPristine();
         this.isLoading = false;
       }))
       .subscribe(() => {
-        log.debug(`Password reset successfully requested for ${this.forgotPasswordForm.controls.email.value}.`);
+        log.debug(`Password reset successfully requested for ${this.form.controls.email.value}.`);
         this.router.navigate(['/confirm-forgot-password'], { queryParamsHandling: "preserve" });
       }, () => {
-        log.debug(`Password reset request for ${this.forgotPasswordForm.controls.email.value} failed.`);
+        log.debug(`Password reset request for ${this.form.controls.email.value} failed.`);
         this.router.navigate(['/confirm-forgot-password'], { queryParamsHandling: "preserve" });
       });
   }
 
   private createForm() {
-    this.forgotPasswordForm = this.formBuilder.group({
+    this.form = this.formBuilder.group({
       email: ['', Validators.required]
     });
   }
