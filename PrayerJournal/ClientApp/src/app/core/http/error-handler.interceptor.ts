@@ -6,6 +6,7 @@ import { catchError } from 'rxjs/operators';
 import { environment } from '@env/environment';
 import { Logger } from '../logger.service';
 import { NotificationsService } from '../notifications.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 const log = new Logger('ErrorHandlerInterceptor');
 
@@ -15,7 +16,7 @@ const log = new Logger('ErrorHandlerInterceptor');
 @Injectable()
 export class ErrorHandlerInterceptor implements HttpInterceptor {
 
-  constructor(private _notifications: NotificationsService) { }
+  constructor(private _notifications: NotificationsService, private router: Router) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(catchError(error => this.errorHandler(error)));
@@ -30,6 +31,11 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
 
     if (response.status === 0)
       this._notifications.showMessage("Network error: " + response.message);
+
+    if (response.status === 401) {
+      this._notifications.showMessage("Your login has expired or been revoked, please log in again.");
+      this.router.navigate(['/login'], { queryParams: { redirect: this.router.url }, replaceUrl: true });
+    }
 
     if (response.error.errors) {
       for (let key in response.error.errors)
