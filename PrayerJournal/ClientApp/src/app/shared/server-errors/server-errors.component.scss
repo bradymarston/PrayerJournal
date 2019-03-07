@@ -1,0 +1,5 @@
+@import "src/theme/theme-variables";
+
+.server-error {
+  color: mat-color($app-warn);
+}

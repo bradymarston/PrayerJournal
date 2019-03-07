@@ -6,6 +6,8 @@ import { finalize } from 'rxjs/operators';
 import { Logger, I18nService, AuthenticationService, AuthorizationService, NotificationsService } from '@app/core';
 import { PasswordValidators } from '../../common/validators/password.validators';
 import { PasswordMatchErrorMatcher } from '../../core/error-matchers/PasswordMatchErrorMatcher';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
 
 const log = new Logger('Change Password');
 
@@ -16,7 +18,7 @@ const log = new Logger('Change Password');
 })
 export class ChangePasswordComponent implements OnInit {
 
-  error: string;
+  errors: string[] = [];
   form: FormGroup;
   isLoading = false;
   sentForCaveat = false;
@@ -42,6 +44,7 @@ export class ChangePasswordComponent implements OnInit {
 
   changePassword() {
     this.isLoading = true;
+    this.errors = [];
     this.authenticationService.changePassword(this.form.value)
       .pipe(finalize(() => {
         this.form.markAsPristine();
@@ -51,12 +54,16 @@ export class ChangePasswordComponent implements OnInit {
         log.debug(`${this.authorizationService.credentials.username} successfully changed their password`);
         this.notifications.showMessage("Password successfully changed");
         this.route.queryParams.subscribe(
-          params => this.router.navigate([params.redirect || '/'], { replaceUrl: true })
+          params => this.router.navigate([params.redirect || '/'])
         );
-      }, error => {
-        log.debug(`Registration error: ${error}`);
-        this.error = error;
+      }, errorResponse => {
+        this.handleError(errorResponse);
       });
+  }
+
+  handleError(response: HttpErrorResponse) {
+    if (response.error instanceof BadRequestErrorDetails)
+      this.errors = response.error.errors;
   }
 
   get currentLanguage(): string {

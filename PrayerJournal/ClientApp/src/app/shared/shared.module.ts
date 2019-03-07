@@ -5,6 +5,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '@app/material.module';
 import { LoaderComponent } from './loader/loader.component';
 import { ValidationWarningComponent } from './validation-warning/validation-warning.component';
+import { ServerErrorsComponent } from './server-errors/server-errors.component';
 
 @NgModule({
   imports: [
@@ -14,11 +15,13 @@ import { ValidationWarningComponent } from './validation-warning/validation-warn
   ],
   declarations: [
     LoaderComponent,
-    ValidationWarningComponent
+    ValidationWarningComponent,
+    ServerErrorsComponent
   ],
   exports: [
     LoaderComponent,
-    ValidationWarningComponent
+    ValidationWarningComponent,
+    ServerErrorsComponent
   ]
 })
 export class SharedModule { }
