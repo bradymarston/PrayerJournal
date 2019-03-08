@@ -73,6 +73,10 @@ export class AuthorizationService {
     }
   }
 
+  public clearCredentials() {
+    this.setCredentials();
+  }
+
   public clearCaveat() {
     this.credentials.caveat = null;
     this.setCredentials(this.credentials, this.isRemembered);

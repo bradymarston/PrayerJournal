@@ -8,6 +8,7 @@ import { Logger } from '../logger.service';
 import { NotificationsService } from '../notifications.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
+import { AuthorizationService } from '../authorization.service';
 
 const log = new Logger('ErrorHandlerInterceptor');
 
@@ -17,7 +18,7 @@ const log = new Logger('ErrorHandlerInterceptor');
 @Injectable()
 export class ErrorHandlerInterceptor implements HttpInterceptor {
 
-  constructor(private _notifications: NotificationsService, private router: Router) { }
+  constructor(private _notifications: NotificationsService, private router: Router, private _authorizationService: AuthorizationService) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(catchError(error => this.errorHandler(error)));
@@ -54,6 +55,7 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
 
   handleUnathorized(response: HttpErrorResponse): HttpErrorResponse {
     this._notifications.showMessage("Your login has expired or been revoked, please log in again.");
+    this._authorizationService.clearCredentials();
     this.router.navigate(['/login'], { queryParams: { redirect: this.router.url }, replaceUrl: true });
     return response;
   }
