@@ -30,7 +30,7 @@ export interface ResetPasswordContext {
   confirmPassword: string;
 }
 
-interface SignInResult {
+export interface SignInResult {
   userName: string;
   caveat: string;
   token: string;
@@ -91,14 +91,10 @@ export class AuthenticationService {
       .get("account/password/" + email);
   }
 
-  resetPassword(context: ResetPasswordContext, code: string): Observable<SignInResult> {
+  resetPassword(context: ResetPasswordContext, code: string): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .post<SignInResult>("account/password?code=" + code, context)
-      .pipe(map(result => {
-        if (result)
-          return this.processToken(result, false);
-    }));
+      .post("account/password?code=" + code, context);
   }
 
   /**

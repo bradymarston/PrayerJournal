@@ -166,9 +166,12 @@ namespace PrayerJournal.Controllers
             var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
             if (result.Succeeded)
             {
-                var token = _signInManager.SignIn(user);
-                return Ok(await GenerateSignInResultDtoAsync(user.UserName, token));
+                return Ok();
             }
+
+            //Lie to the client if the token is invalid
+            if (result.Errors.FirstOrDefault(e => e.Code == "InvalidToken") != null)
+                return Ok();
 
             return this.IdentityFailure(result);
         }

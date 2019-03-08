@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
-import { environment } from '@env/environment';
-import { Logger, I18nService, AuthenticationService, NotificationsService } from '@app/core';
+import { Logger, AuthenticationService, NotificationsService, SignInResult } from '@app/core';
 import { PasswordValidators } from '../../common/validators/password.validators';
 import { PasswordMatchErrorMatcher } from '../../core/error-matchers/PasswordMatchErrorMatcher';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
 
 const log = new Logger('Register');
 
@@ -17,8 +18,7 @@ const log = new Logger('Register');
 })
 export class RegisterComponent implements OnInit {
 
-  version: string = environment.version;
-  error: string;
+  errors: string[] = [];
   form: FormGroup;
   isLoading = false;
 
@@ -27,7 +27,6 @@ export class RegisterComponent implements OnInit {
   constructor(private router: Router,
               private route: ActivatedRoute,
               private formBuilder: FormBuilder,
-              private i18nService: I18nService,
               private authenticationService: AuthenticationService,
               private notifications: NotificationsService) {
     this.createForm();
@@ -37,29 +36,29 @@ export class RegisterComponent implements OnInit {
 
   register() {
     this.isLoading = true;
+    this.errors = [];
     this.authenticationService.register(this.form.value)
       .pipe(finalize(() => {
         this.form.markAsPristine();
         this.isLoading = false;
       }))
-      .subscribe(credentials => {
-        log.debug(`${credentials.userName} successfully logged in`);
-        this.notifications.showMessage("Registered " + credentials.userName);
-        this.route.queryParams.subscribe(
-          params => this.router.navigate([ params.redirect || '/'], { replaceUrl: true })
-        );
-      }, error => {
-        log.debug(`Registration error: ${error}`);
-        this.error = error;
-      });
+      .subscribe(
+        signInResponse => this.handleSuccess(signInResponse),
+        errorResponse => this.handleError(errorResponse));
   }
 
-  get currentLanguage(): string {
-    return this.i18nService.language;
+  handleSuccess(signInResponse: SignInResult) {
+    log.debug(`${signInResponse.userName} successfully logged in`);
+    this.notifications.showMessage("Registered " + signInResponse.userName);
+    this.route.queryParams.subscribe(
+      params => this.router.navigate([params.redirect || '/'], { replaceUrl: true })
+    );
   }
 
-  get languages(): string[] {
-    return this.i18nService.supportedLanguages;
+  handleError(response: HttpErrorResponse) {
+    log.debug(`Registration error: ${response.error}`);
+    if (response.error instanceof BadRequestErrorDetails)
+      this.errors = response.error.errors;
   }
 
   private createForm() {

@@ -17,9 +17,7 @@
         </a>
       </div>
       <form (ngSubmit)="register()" [formGroup]="form" novalidate>
-        <div class="register-error" [hidden]="!error || isLoading">
-          Email address already in use.
-        </div>
+        <app-server-errors [errors]="errors"></app-server-errors>
         <br />
         <div fxLayout="column">
           <mat-form-field>

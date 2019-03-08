@@ -5,6 +5,8 @@ import { AuthenticationService, Logger, NotificationsService } from '../../core'
 import { finalize } from 'rxjs/operators';
 import { PasswordValidators } from '../../common/validators/password.validators';
 import { PasswordMatchErrorMatcher } from '../../core/error-matchers/PasswordMatchErrorMatcher';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
 
 const log = new Logger('Reset Password');
 
@@ -15,7 +17,7 @@ const log = new Logger('Reset Password');
 })
 export class ResetPasswordComponent implements OnInit {
 
-  error: string;
+  errors: string[] = [];
   form: FormGroup;
   isLoading = false;
   code: string;
@@ -40,19 +42,28 @@ export class ResetPasswordComponent implements OnInit {
 
   resetPassword() {
     this.isLoading = true;
+    this.errors = [];
     this.authenticationService.resetPassword(this.form.value, this.code)
       .pipe(finalize(() => {
         this.form.markAsPristine();
         this.isLoading = false;
       }))
-      .subscribe(() => {
-        log.debug(`${this.form.controls.email.value} reset password.`);
-        this.notifications.showMessage("Password successfully reset")
-        this.router.navigate(['/']);
-      }, () => {
-        log.debug(`Invalid attempt to reset password by ${this.form.controls.email.value}`);
-        this.router.navigate(['/']);
-      });
+      .subscribe(
+        () => this.handleSuccess(),
+        errorResponse => this.handleError(errorResponse));
+  }
+
+  handleSuccess() {
+    log.debug(`${this.form.controls.email.value} potentially reset password.`);
+    this.notifications.showMessage("Password reset successfully submitted")
+    this.router.navigate(['/']);
+  }
+
+  handleError(response: HttpErrorResponse) {
+    log.debug(`Invalid attempt to reset password by ${this.form.controls.email.value}: ${response.error}`);
+    if (response.error instanceof BadRequestErrorDetails) {
+      this.errors = response.error.errors;
+    }
   }
 
   private createForm() {

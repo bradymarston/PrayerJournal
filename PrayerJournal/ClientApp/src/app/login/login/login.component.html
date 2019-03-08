@@ -12,9 +12,7 @@
           Login
         </h1>
         <form (ngSubmit)="login()" [formGroup]="form" novalidate>
-          <div class="login-error" [hidden]="!error || isLoading" translate>
-            Username or password incorrect.
-          </div>
+          <app-server-errors [errors]="errors"></app-server-errors>
           <br />
           <div fxLayout="column">
             <mat-form-field>

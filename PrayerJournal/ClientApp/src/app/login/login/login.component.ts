@@ -4,7 +4,9 @@ import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/fo
 import { finalize } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
-import { Logger, I18nService, AuthenticationService } from '@app/core';
+import { Logger, AuthenticationService, SignInResult } from '@app/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
 
 const log = new Logger('Login');
 
@@ -16,7 +18,7 @@ const log = new Logger('Login');
 export class LoginComponent implements OnInit {
 
   version: string = environment.version;
-  error: string;
+  errors: string[] = [];
   form: FormGroup;
   isLoading = false;
   redirectUrl: any;
@@ -24,7 +26,6 @@ export class LoginComponent implements OnInit {
   constructor(private router: Router,
               private route: ActivatedRoute,
               private formBuilder: FormBuilder,
-              private i18nService: I18nService,
               private authenticationService: AuthenticationService) {
     this.createForm();
   }
@@ -35,30 +36,26 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.isLoading = true;
+    this.errors = [];
     this.authenticationService.login(this.form.value)
       .pipe(finalize(() => {
         this.form.markAsPristine();
         this.isLoading = false;
       }))
-      .subscribe(credentials => {
-        log.debug(`${credentials.userName} successfully logged in`);
-        this.router.navigate([ this.redirectUrl || '/'], { replaceUrl: true });
-      }, error => {
-        log.debug(`Login error: ${error}`);
-        this.error = error;
-      });
+      .subscribe(
+        signInResponse => this.handleSuccess(signInResponse),
+        errorResponse => this.handleError(errorResponse));
   }
 
-  setLanguage(language: string) {
-    this.i18nService.language = language;
+  handleSuccess(signInResponse: SignInResult) {
+    log.debug(`${signInResponse.userName} successfully logged in`);
+    this.router.navigate([this.redirectUrl || '/'], { replaceUrl: true });
   }
 
-  get currentLanguage(): string {
-    return this.i18nService.language;
-  }
-
-  get languages(): string[] {
-    return this.i18nService.supportedLanguages;
+  handleError(response: HttpErrorResponse) {
+    log.debug(`Login error: ${response.error}`);
+    if (response.error instanceof BadRequestErrorDetails)
+      this.errors = response.error.errors;
   }
 
   private createForm() {
