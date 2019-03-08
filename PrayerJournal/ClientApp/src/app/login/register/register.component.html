@@ -20,6 +20,28 @@
         <app-server-errors [errors]="errors"></app-server-errors>
         <br />
         <div fxLayout="column">
+          <div fxLayout.gt-sm="row" fxLayoutGap.gt-sm="1.5rem">
+            <mat-form-field>
+              <input type="text"
+                     matInput formControlName="firstName" autocomplete="given-name"
+                     placeholder="First Name" required />
+              <mat-error>
+                <validation-warning [control]="form.controls.firstName"
+                                    controlTitle="First Name">
+                </validation-warning>
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <input type="text"
+                     matInput formControlName="lastName" autocomplete="family-name"
+                     placeholder="Last Name" required />
+              <mat-error>
+                <validation-warning [control]="form.controls.lastName"
+                                    controlTitle="Last Name">
+                </validation-warning>
+              </mat-error>
+            </mat-form-field>
+          </div>
           <mat-form-field>
             <input type="text"
                    matInput formControlName="email" autocomplete="email"
@@ -53,7 +75,7 @@
           <button mat-raised-button color="primary" type="submit"
                   [disabled]="form.invalid || isLoading">
             <app-loader class="inline-loader" [isLoading]="isLoading"></app-loader>
-              REGISTER
+            REGISTER
           </button>
         </div>
       </form>

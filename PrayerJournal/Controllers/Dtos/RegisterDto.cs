@@ -9,6 +9,16 @@ namespace PrayerJournal.Controllers.Dtos
     public class RegisterDto
     {
         [Required]
+        [Display(Name = "First Name")]
+        [MaxLength(32)]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Last Name")]
+        [MaxLength(32)]
+        public string LastName { get; set; }
+
+        [Required]
         [Display(Name = "Email Address")]
         [EmailAddress]
         public string Email { get; set; }

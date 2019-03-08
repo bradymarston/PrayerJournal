@@ -13,6 +13,8 @@ export interface LoginContext {
 }
 
 export interface RegistrationContext {
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -32,6 +34,7 @@ export interface ResetPasswordContext {
 
 export interface SignInResult {
   userName: string;
+  name: string;
   caveat: string;
   token: string;
 }
@@ -109,7 +112,8 @@ export class AuthenticationService {
 
   private processToken(signInResult: SignInResult, remember: boolean) : SignInResult {
     const credentials = {
-      username: signInResult.userName,
+      userName: signInResult.userName,
+      name: signInResult.name,
       caveat: signInResult.caveat,
       token: signInResult.token
     };

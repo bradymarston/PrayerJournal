@@ -7,7 +7,7 @@ namespace PrayerJournal.Authentication.Models
 {
     public class ShadyToken
     {
-        public string UserName { get; set; }
+        public string UserId { get; set; }
         public DateTime Issued { get; set; }
     }
 }

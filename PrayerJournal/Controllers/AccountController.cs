@@ -46,11 +46,12 @@ namespace PrayerJournal.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, true);
+            var result = await _signInManager.EmailPasswordSignInAsync(model.Email, model.Password, true);
 
             if (result.Succeeded)
             {
-                return Ok(await GenerateSignInResultDtoAsync(model.Email, result.Token));
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                return Ok(await GenerateSignInResultDtoAsync(user.UserName, result.Token));
             }
 
             return this.SignInFailure(result);
@@ -64,7 +65,9 @@ namespace PrayerJournal.Controllers
 
             var user = new ApplicationUser
             {
-                UserName = registration.Email,
+                FirstName = registration.FirstName,
+                LastName = registration.LastName,
+                UserName = "Email-" + registration.Email,
                 Email = registration.Email
             };
 
@@ -130,13 +133,11 @@ namespace PrayerJournal.Controllers
             if (!result.Succeeded)
                 return this.IdentityFailure(result);
 
-            if (user.SuggestPasswordChange)
-            {
-                user.SuggestPasswordChange = false;
-                await _userManager.UpdateAsync(user);
-            }
+            user.TokensInvalidBefore = DateTime.UtcNow;
+            user.SuggestPasswordChange = false;
+            await _userManager.UpdateAsync(user);
 
-            return Ok(await GenerateSignInResultDtoAsync(user.UserName, _tokenService.GenerateTokenString(user.UserName)));
+            return Ok(await GenerateSignInResultDtoAsync(user.UserName, _tokenService.GenerateTokenString(user.Id)));
         }
 
         [HttpGet("password/{email}")]
@@ -198,11 +199,12 @@ namespace PrayerJournal.Controllers
 
         private async Task<SignInResultsDto> GenerateSignInResultDtoAsync(string userName, string token)
         {
-            var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == userName);
+            var appUser = _userManager.Users.SingleOrDefault(u => u.UserName == userName);
             var responseObject = new SignInResultsDto
             {
                 Token = token,
-                UserName = userName
+                UserName = userName,
+                Name = $"{appUser.FirstName} {appUser.LastName}"
             };
 
             if (appUser.SuggestPasswordChange)

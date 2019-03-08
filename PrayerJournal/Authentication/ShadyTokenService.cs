@@ -38,9 +38,9 @@ namespace PrayerJournal.Authentication
             return JsonConvert.DeserializeObject<ShadyToken>(decryptedTokenString);
         }
 
-        public string GenerateTokenString(string userName)
+        public string GenerateTokenString(string userId)
         {
-            var token = new ShadyToken() { UserName = userName, Issued = DateTime.UtcNow };
+            var token = new ShadyToken() { UserId = userId, Issued = DateTime.UtcNow };
 
             var protector = _protectionProvider.CreateProtector("UserToken");
             return protector.Protect(JsonConvert.SerializeObject(token));

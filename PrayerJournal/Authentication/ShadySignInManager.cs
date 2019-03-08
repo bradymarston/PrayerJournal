@@ -62,7 +62,7 @@ namespace PrayerJournal.Authentication
         /// <returns>Valid authentication token.</returns>
         public virtual string SignIn(TUser user)
         {
-            return _tokenService.GenerateTokenString(user.UserName);
+            return _tokenService.GenerateTokenString(user.Id);
         }
 
         /// <summary>
@@ -113,6 +113,27 @@ namespace PrayerJournal.Authentication
             bool lockoutOnFailure)
         {
             var user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                return ShadySignInResult.Failed;
+            }
+
+            return await PasswordSignInAsync(user, password, lockoutOnFailure);
+        }
+
+        /// <summary>
+        /// Attempts to sign in the specified <paramref name="email"/> and <paramref name="password"/> combination
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="email">The email address of the user to sign in.</param>
+        /// <param name="password">The password to attempt to sign in with.</param>
+        /// <param name="lockoutOnFailure">Flag indicating if the user account should be locked if the sign in fails.</param>
+        /// <returns>The task object representing the asynchronous operation containing the <see name="SignInResult"/>
+        /// for the sign-in attempt.</returns>
+        public virtual async Task<ShadySignInResult> EmailPasswordSignInAsync(string email, string password,
+            bool lockoutOnFailure)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 return ShadySignInResult.Failed;

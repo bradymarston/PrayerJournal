@@ -9,6 +9,6 @@ namespace PrayerJournal.Authentication
     public interface IShadyTokenService
     {
         ShadyToken DecodeTokenString(string tokenString);
-        string GenerateTokenString(string userName);
+        string GenerateTokenString(string userId);
     }
 }

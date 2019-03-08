@@ -45,7 +45,7 @@ namespace PrayerJournal.Authentication
             if (token is null)
                 return AuthenticateResult.Fail("Invalid authentication header");
 
-            var user = await _userManager.FindByNameAsync(token.UserName);
+            var user = await _userManager.FindByIdAsync(token.UserId);
             if (user is null)
                 return AuthenticateResult.Fail("User in authentication header cannot be found");
 
