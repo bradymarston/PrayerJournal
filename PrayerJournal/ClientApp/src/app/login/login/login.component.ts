@@ -7,6 +7,7 @@ import { environment } from '@env/environment';
 import { Logger, AuthenticationService, SignInResult } from '@app/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
+import { SignInErrorDetails } from '../../common/sign-in-error-details';
 
 const log = new Logger('Login');
 
@@ -56,6 +57,9 @@ export class LoginComponent implements OnInit {
     log.debug(`Login error: ${response.error}`);
     if (response.error instanceof BadRequestErrorDetails)
       this.errors = response.error.errors;
+
+    if (response.error instanceof SignInErrorDetails)
+      console.log(response.error);
   }
 
   private createForm() {

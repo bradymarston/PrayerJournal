@@ -17,7 +17,7 @@ namespace PrayerJournal.Controllers.Extensions
         {
             var problemDetails = GenerateProblemDetails(result);
 
-            if ((string)problemDetails.Extensions["Reason"] == "InvalidSignIn")
+            if ((string)problemDetails.Extensions["reason"] == "InvalidSignIn")
             {
                 return controller.BadRequest(problemDetails);
             }
@@ -106,7 +106,7 @@ namespace PrayerJournal.Controllers.Extensions
             if (result.ConfirmCredential)
                 reason = "CredentialUnconfirmed";
 
-            problemDetails.AddExtension("Reason", reason);
+            problemDetails.AddExtension("reason", reason);
 
             if (reason == "InvalidSignIn")
                 problemDetails.AddErrors(new List<ErrorItem>()

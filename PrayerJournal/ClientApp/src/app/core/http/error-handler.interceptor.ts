@@ -9,6 +9,7 @@ import { NotificationsService } from '../notifications.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
 import { AuthorizationService } from '../authorization.service';
+import { SignInErrorDetails } from '../../common/sign-in-error-details';
 
 const log = new Logger('ErrorHandlerInterceptor');
 
@@ -54,6 +55,20 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
   }
 
   handleUnathorized(response: HttpErrorResponse): HttpErrorResponse {
+    if (response.error) {
+      if (response.error.type = "SignInError") {
+        let error = new SignInErrorDetails(response.error.type, response.error.title, response.error.reason);
+
+        return new HttpErrorResponse({
+          error: error,
+          headers: response.headers,
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url
+        });
+      }
+    }
+
     this._notifications.showMessage("Your login has expired or been revoked, please log in again.");
     this._authorizationService.clearCredentials();
     this.router.navigate(['/login'], { queryParams: { redirect: this.router.url }, replaceUrl: true });
@@ -79,7 +94,7 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
         status: response.status,
         statusText: response.statusText,
         url: response.url
-      })
+      });
     }
     return response;
   }
