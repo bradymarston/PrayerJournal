@@ -37,16 +37,16 @@ namespace PrayerJournal.Authentication
         /// The task object representing the asynchronous operation, containing a flag that is true
         /// if the specified user can sign-in, otherwise false.
         /// </returns>
-        public virtual async Task<bool> CanSignInAsync(TUser user)
+        public virtual async Task<bool> CheckCredentialConfirmationAsync(TUser user, ShadyCredentialType credentialType)
         {
-            if (Options.SignIn.RequireConfirmedEmail && !(await _userManager.IsEmailConfirmedAsync(user)))
+            if (credentialType == ShadyCredentialType.Email && Options.SignIn.RequireConfirmedEmail && !(await _userManager.IsEmailConfirmedAsync(user)))
             {
-                _logger.LogWarning(0, "User {userId} cannot sign in without a confirmed email.", await _userManager.GetUserIdAsync(user));
+                _logger.LogWarning(0, "User {userId} attempted to sign in with an unconfirmed email.", await _userManager.GetUserIdAsync(user));
                 return false;
             }
-            if (Options.SignIn.RequireConfirmedPhoneNumber && !(await _userManager.IsPhoneNumberConfirmedAsync(user)))
+            if (credentialType == ShadyCredentialType.Phone && Options.SignIn.RequireConfirmedPhoneNumber && !(await _userManager.IsPhoneNumberConfirmedAsync(user)))
             {
-                _logger.LogWarning(1, "User {userId} cannot sign in without a confirmed phone number.", await _userManager.GetUserIdAsync(user));
+                _logger.LogWarning(1, "User {userId} attempted to sign in with an unconfirmed phone number.", await _userManager.GetUserIdAsync(user));
                 return false;
             }
 
@@ -139,6 +139,9 @@ namespace PrayerJournal.Authentication
                 return ShadySignInResult.Failed;
             }
 
+            if (!await CheckCredentialConfirmationAsync(user, ShadyCredentialType.Email))
+                return ShadySignInResult.ConfirmationRequired;
+
             return await PasswordSignInAsync(user, password, lockoutOnFailure);
         }
 
@@ -158,10 +161,9 @@ namespace PrayerJournal.Authentication
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var error = await PreSignInCheck(user);
-            if (error != null)
+            if (await IsLockedOut(user))
             {
-                return error;
+                return await LockedOutAsync(user);
             }
 
             if (await _userManager.CheckPasswordAsync(user, password))
@@ -248,24 +250,6 @@ namespace PrayerJournal.Authentication
         {
             _logger.LogWarning(3, "User {userId} is currently locked out.", await _userManager.GetUserIdAsync(user));
             return ShadySignInResult.LockedOut;
-        }
-
-        /// <summary>
-        /// Used to ensure that a user is allowed to sign in.
-        /// </summary>
-        /// <param name="user">The user</param>
-        /// <returns>Null if the user should be allowed to sign in, otherwise the SignInResult why they should be denied.</returns>
-        protected virtual async Task<ShadySignInResult> PreSignInCheck(TUser user)
-        {
-            if (!await CanSignInAsync(user))
-            {
-                return ShadySignInResult.NotAllowed;
-            }
-            if (await IsLockedOut(user))
-            {
-                return await LockedOutAsync(user);
-            }
-            return null;
         }
 
         /// <summary>

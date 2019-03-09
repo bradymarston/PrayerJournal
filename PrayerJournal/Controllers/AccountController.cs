@@ -51,7 +51,7 @@ namespace PrayerJournal.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                return Ok(await GenerateSignInResultDtoAsync(user.UserName, result.Token));
+                return Ok(GenerateSignInResultDto(user, result.Token));
             }
 
             return this.SignInFailure(result);
@@ -77,7 +77,7 @@ namespace PrayerJournal.Controllers
                 await SendEmailTokenAsync(user);
 
                 var token = _signInManager.SignIn(user);
-                return Ok(await GenerateSignInResultDtoAsync(user.UserName, token));
+                return Ok(GenerateSignInResultDto(user, token));
             }
 
             return this.IdentityFailure(result);
@@ -116,7 +116,7 @@ namespace PrayerJournal.Controllers
             if (result.Succeeded)
             {
                 var token =_signInManager.SignIn(user);
-                return Ok(await GenerateSignInResultDtoAsync(user.UserName, token));
+                return Ok(GenerateSignInResultDto(user, token));
             }
 
             return this.IdentityFailure(result);
@@ -137,7 +137,9 @@ namespace PrayerJournal.Controllers
             user.SuggestPasswordChange = false;
             await _userManager.UpdateAsync(user);
 
-            return Ok(await GenerateSignInResultDtoAsync(user.UserName, _tokenService.GenerateTokenString(user.Id)));
+            var tokenString = _signInManager.SignIn(user);
+
+            return Ok(GenerateSignInResultDto(user, tokenString));
         }
 
         [HttpGet("password/{email}")]
@@ -197,21 +199,17 @@ namespace PrayerJournal.Controllers
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         }
 
-        private async Task<SignInResultsDto> GenerateSignInResultDtoAsync(string userName, string token)
+        private SignInResultsDto GenerateSignInResultDto(ApplicationUser user, string token)
         {
-            var appUser = _userManager.Users.SingleOrDefault(u => u.UserName == userName);
             var responseObject = new SignInResultsDto
             {
                 Token = token,
-                UserName = userName,
-                Name = $"{appUser.FirstName} {appUser.LastName}"
+                UserName = user.UserName,
+                Name = $"{user.FirstName} {user.LastName}"
             };
 
-            if (appUser.SuggestPasswordChange)
+            if (user.SuggestPasswordChange)
                 responseObject.Caveat = "ChangePassword";
-
-            if (!await _userManager.IsEmailConfirmedAsync(appUser))
-                responseObject.Caveat = "ConfirmEmail";
 
             return responseObject;
         }

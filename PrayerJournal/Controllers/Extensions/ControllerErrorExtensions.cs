@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
+using PrayerJournal.Authentication.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace PrayerJournal.Controllers.Extensions
 {
     public static class ControllerErrorExtensions
     {
-        public static IActionResult SignInFailure(this ControllerBase controller, Microsoft.AspNetCore.Identity.SignInResult result)
+        public static IActionResult SignInFailure(this ControllerBase controller, ShadySignInResult result)
         {
             var problemDetails = GenerateProblemDetails(result);
 
@@ -86,7 +87,7 @@ namespace PrayerJournal.Controllers.Extensions
             return problemDetails;
         }
 
-        private static ProblemDetails GenerateProblemDetails(Microsoft.AspNetCore.Identity.SignInResult result)
+        private static ProblemDetails GenerateProblemDetails(ShadySignInResult result)
         {
             var problemDetails = new ProblemDetails()
             {
@@ -101,6 +102,9 @@ namespace PrayerJournal.Controllers.Extensions
 
             if (result.IsLockedOut)
                 reason = "LockedOut";
+
+            if (result.ConfirmCredential)
+                reason = "CredentialUnconfirmed";
 
             problemDetails.AddExtension("Reason", reason);
 

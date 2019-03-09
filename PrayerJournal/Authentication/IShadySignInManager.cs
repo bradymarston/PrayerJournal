@@ -8,7 +8,7 @@ namespace PrayerJournal.Authentication
     {
         IdentityOptions Options { get; }
 
-        Task<bool> CanSignInAsync(TUser user);
+        Task<bool> CheckCredentialConfirmationAsync(TUser user, ShadyCredentialType credentialType);
         Task<ShadySignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure);
         Task<bool> IsTwoFactorClientRememberedAsync(TUser user);
         Task<ShadySignInResult> PasswordSignInAsync(string userName, string password, bool lockoutOnFailure);

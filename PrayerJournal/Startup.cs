@@ -40,7 +40,10 @@ namespace PrayerJournal
 
             services.ConfigureAutomaticValidationResponse();
 
-            services.AddIdentityCore<ApplicationUser>()
+            services.AddIdentityCore<ApplicationUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedEmail = true;
+                })
                 .AddRoles<IdentityRole>()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
