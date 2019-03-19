@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using PrayerJournal.Authentication;
+using ShadySoft.Authentication;
 using PrayerJournal.Controllers.Dtos;
 using PrayerJournal.Controllers.Extensions;
 using PrayerJournal.Core;
@@ -22,13 +22,13 @@ namespace PrayerJournal.Controllers
     [Route("[controller]")]
     public class AccountController : Controller
     {
-        private readonly IShadySignInManager<ApplicationUser> _signInManager;
+        private readonly ISignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
-            IShadySignInManager<ApplicationUser> signInManager,
+            ISignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender
             )
         {

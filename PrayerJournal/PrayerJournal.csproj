@@ -34,6 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\ShadyAuthentication\ShadyAuthentication\ShadyAuthentication.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\core\error-matchers\PasswordMatchErrorMatcher.ts" />
   </ItemGroup>
 

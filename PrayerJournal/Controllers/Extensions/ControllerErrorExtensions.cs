@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
-using PrayerJournal.Authentication.Models;
+using ShadySoft.Authentication.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace PrayerJournal.Controllers.Extensions
 {
     public static class ControllerErrorExtensions
     {
-        public static IActionResult SignInFailure(this ControllerBase controller, ShadySignInResult result)
+        public static IActionResult SignInFailure(this ControllerBase controller, ShadySoft.Authentication.Models.SignInResult result)
         {
             var problemDetails = GenerateProblemDetails(result);
 
@@ -87,7 +87,7 @@ namespace PrayerJournal.Controllers.Extensions
             return problemDetails;
         }
 
-        private static ProblemDetails GenerateProblemDetails(ShadySignInResult result)
+        private static ProblemDetails GenerateProblemDetails(ShadySoft.Authentication.Models.SignInResult result)
         {
             var problemDetails = new ProblemDetails()
             {

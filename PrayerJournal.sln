@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28606.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrayerJournal", "PrayerJournal\PrayerJournal.csproj", "{46C815C0-9FDF-421B-8E81-E41762AA090C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrayerJournal", "PrayerJournal\PrayerJournal.csproj", "{46C815C0-9FDF-421B-8E81-E41762AA090C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShadyAuthentication", "..\ShadyAuthentication\ShadyAuthentication\ShadyAuthentication.csproj", "{416FBB3F-510E-451E-9268-70DE55E3F03F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{46C815C0-9FDF-421B-8E81-E41762AA090C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46C815C0-9FDF-421B-8E81-E41762AA090C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46C815C0-9FDF-421B-8E81-E41762AA090C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{416FBB3F-510E-451E-9268-70DE55E3F03F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{416FBB3F-510E-451E-9268-70DE55E3F03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{416FBB3F-510E-451E-9268-70DE55E3F03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{416FBB3F-510E-451E-9268-70DE55E3F03F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -15,7 +15,7 @@ using System;
 using PrayerJournal.Controllers.Extensions;
 using PrayerJournal.Core;
 using PrayerJournal.Services;
-using PrayerJournal.Authentication;
+using ShadySoft.Authentication;
 
 namespace PrayerJournal
 {
