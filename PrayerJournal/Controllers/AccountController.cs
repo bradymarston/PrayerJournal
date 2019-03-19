@@ -24,22 +24,16 @@ namespace PrayerJournal.Controllers
     {
         private readonly IShadySignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration _configuration;
-        private readonly IShadyTokenService _tokenService;
         private readonly IEmailSender _emailSender;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             IShadySignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration,
-            IShadyTokenService tokenService,
             IEmailSender emailSender
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configuration = configuration;
-            _tokenService = tokenService;
             _emailSender = emailSender;
         }
 
@@ -96,7 +90,7 @@ namespace PrayerJournal.Controllers
 
             if (user.EmailConfirmed)
             {
-                return this.IdentityFailure("EmailConfirmed", "Email already confrimed.");
+                return this.IdentityFailure("EmailConfirmed", "Email already confirmed.");
             }
 
             await SendEmailTokenAsync(user);
@@ -133,7 +127,8 @@ namespace PrayerJournal.Controllers
             if (!result.Succeeded)
                 return this.IdentityFailure(result);
 
-            user.TokensInvalidBefore = DateTime.UtcNow;
+            await _signInManager.SignOutAsync(user);
+
             user.SuggestPasswordChange = false;
             await _userManager.UpdateAsync(user);
 
@@ -169,6 +164,7 @@ namespace PrayerJournal.Controllers
             var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
             if (result.Succeeded)
             {
+                await _signInManager.SignOutAsync(user);
                 return Ok();
             }
 
