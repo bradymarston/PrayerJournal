@@ -40,12 +40,12 @@ namespace PrayerJournal.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto model)
         {
-            var result = await _signInManager.EmailPasswordSignInAsync(model.Email, model.Password, true);
+            var (tokenString, result) = await _signInManager.EmailPasswordSignInAsync(model.Email, model.Password, true);
 
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                return Ok(GenerateSignInResultDto(user, result.Token));
+                return Ok(GenerateSignInResultDto(user, tokenString));
             }
 
             return this.SignInFailure(result);
