@@ -12,9 +12,7 @@
         <h1 class="headline">
           Register
         </h1>
-        <a mat-raised-button [routerLink]="['/login']" queryParamsHandling="preserve">
-          BACK TO LOGIN
-        </a>
+        <app-back-to-login-button></app-back-to-login-button>
       </div>
       <form (ngSubmit)="register()" [formGroup]="form" novalidate>
         <app-server-errors [errors]="errors"></app-server-errors>

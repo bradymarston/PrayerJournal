@@ -6,9 +6,7 @@
     <mat-card fxFlex="90%" fxFlex.sm="66%" fxFlex.md="50%" fxFlex.gt-md="33%" class="register-box">
       <div fxLayout="row" fxLayoutAlign="space-between start">
         <h1 class="headline">Confirm Email Address</h1>
-        <a mat-raised-button [routerLink]="['/login']" queryParamsHandling="preserve">
-          BACK TO LOGIN
-        </a>
+        <app-back-to-login-button></app-back-to-login-button>
       </div>
       We sent a confirmation email to {{ email }}. Please look for the email and follow the instructions. <br />
       <br />

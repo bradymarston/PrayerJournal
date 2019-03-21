@@ -14,6 +14,7 @@ import { EmailNotConfirmedComponent } from './email-not-confirmed/email-not-conf
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ConfirmForgotPasswordComponent } from './confirm-forgot-password/confirm-forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { BackToLoginButtonComponent } from './back-to-login-button/back-to-login-button.component';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
     EmailNotConfirmedComponent,
     ForgotPasswordComponent,
     ConfirmForgotPasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    BackToLoginButtonComponent
   ]
 })
 export class LoginModule { }
