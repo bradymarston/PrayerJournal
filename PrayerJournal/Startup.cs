@@ -16,6 +16,7 @@ using PrayerJournal.Controllers.Extensions;
 using PrayerJournal.Core;
 using PrayerJournal.Services;
 using ShadySoft.Authentication;
+using Microsoft.Extensions.Hosting;
 
 namespace PrayerJournal
 {
@@ -62,7 +63,7 @@ namespace PrayerJournal
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
