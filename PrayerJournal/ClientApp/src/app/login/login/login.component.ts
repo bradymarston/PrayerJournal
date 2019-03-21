@@ -58,13 +58,17 @@ export class LoginComponent implements OnInit {
     if (response.error instanceof BadRequestErrorDetails)
       this.errors = response.error.errors;
 
-    if (response.error instanceof SignInErrorDetails)
-      console.log(response.error);
+    if (response.error instanceof SignInErrorDetails) {
+      if (response.error.reason === "CredentialUnconfirmed")
+        this.router.navigate(["/email-not-confirmed"], { queryParams: { email: this.form.controls.email.value } });
+      else
+        console.log(response.error);
+    }
   }
 
   private createForm() {
     this.form = this.formBuilder.group({
-      username: ['', Validators.required],
+      email: ['', Validators.required],
       password: ['', Validators.required],
       remember: true
     });

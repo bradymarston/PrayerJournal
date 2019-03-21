@@ -14,7 +14,7 @@ export class MockAuthenticationService {
 
   login(context: LoginContext): Observable<Credentials> {
     return of({
-      userName: context.username,
+      userName: context.email,
       name: "",
       caveat: null,
       token: '123456'

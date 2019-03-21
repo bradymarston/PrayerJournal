@@ -77,20 +77,20 @@ namespace PrayerJournal.Controllers
             return this.IdentityFailure(result);
         }
 
-        [HttpGet("confirm-email")]
-        [Authorize]
-        public async Task<IActionResult> GetEmailConfirmationCode()
+        [HttpGet("confirm-email/{email}")]
+        public async Task<IActionResult> GetEmailConfirmationCode(string email)
         {
-            var user = this.GetAuthenticatedUser<ApplicationUser>();
+            var user = await _userManager.FindByEmailAsync(email);
 
-            if (string.IsNullOrWhiteSpace(user.Email))
+            //Don't reveal that the user doesn't exist or has already confirmed their email address
+            if (user == null)
             {
-                return this.IdentityFailure("MissingEmail", "User does not have an email address.");
+                return Ok();
             }
 
             if (user.EmailConfirmed)
             {
-                return this.IdentityFailure("EmailConfirmed", "Email already confirmed.");
+                return Ok();
             }
 
             await SendEmailTokenAsync(user);

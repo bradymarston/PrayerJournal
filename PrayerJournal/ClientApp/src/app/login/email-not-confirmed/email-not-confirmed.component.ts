@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Logger, AuthenticationService, NotificationsService } from '@app/core';
 
@@ -7,9 +7,10 @@ import { Logger, AuthenticationService, NotificationsService } from '@app/core';
   templateUrl: './email-not-confirmed.component.html',
   styleUrls: ['./email-not-confirmed.component.scss']
 })
-export class EmailNotConfirmedComponent {
+export class EmailNotConfirmedComponent implements OnInit {
 
   isLoading = true;
+  email = "";
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -17,11 +18,14 @@ export class EmailNotConfirmedComponent {
               private notifications: NotificationsService) {
   }
 
-  resendEmail() {
-    this.authenticationService.sendEmailConfirmation().subscribe(() => this.notifications.showMessage("New email sent"));
+  ngOnInit(): void {
+    this.email = this.route.snapshot.queryParams.email;
   }
 
-  logout() {
-    this.authenticationService.logout().subscribe(() => this.router.navigate(["/login"], { queryParamsHandling: "preserve" }));
+  resendEmail() {
+    this.authenticationService.sendEmailConfirmation(this.email).subscribe(() => {
+      this.notifications.showMessage("New email sent");
+      this.router.navigate(["/login"]);
+    });
   }
 }

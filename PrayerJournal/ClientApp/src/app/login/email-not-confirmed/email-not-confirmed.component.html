@@ -4,13 +4,15 @@
   </div>
   <div class="email-not-confirmed-container" fxLayout="row" fxLayoutAlign="center">
     <mat-card fxFlex="90%" fxFlex.sm="66%" fxFlex.md="50%" fxFlex.gt-md="33%" class="register-box">
-      <h1 class="headline">Confirm Email Address</h1>
-      We sent a confirmation email. Please look for the email and follow the instructions. <br />
+      <div fxLayout="row" fxLayoutAlign="space-between start">
+        <h1 class="headline">Confirm Email Address</h1>
+        <a mat-raised-button [routerLink]="['/login']" queryParamsHandling="preserve">
+          BACK TO LOGIN
+        </a>
+      </div>
+      We sent a confirmation email to {{ email }}. Please look for the email and follow the instructions. <br />
       <br />
-      <button mat-raised-button color="primary" (click)="logout()">
-        LOGOUT
-      </button>
-      <button mat-raised-button (click)="resendEmail()">
+      <button mat-raised-button color="primary" (click)="resendEmail()">
         RESEND CONFIRMATION EMAIL
       </button>
     </mat-card>

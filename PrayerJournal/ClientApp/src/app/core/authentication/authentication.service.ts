@@ -7,7 +7,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ResetPasswordComponent } from '../../login/reset-password/reset-password.component';
 
 export interface LoginContext {
-  username: string;
+  email: string;
   password: string;
   remember?: boolean;
 }
@@ -57,7 +57,7 @@ export class AuthenticationService {
   login(context: LoginContext): Observable<SignInResult> {
     return this._http
       .disableApiPrefix()
-      .post<SignInResult>("account/login", { email: context.username, password: context.password })
+      .post<SignInResult>("account/login", { email: context.email, password: context.password })
       .pipe(map(result => this.processToken(result, context.remember)));
   }
 
@@ -82,10 +82,10 @@ export class AuthenticationService {
       .pipe(map(result => this.processToken(result, false)));
   }
 
-  sendEmailConfirmation(): Observable<any> {
+  sendEmailConfirmation(email: string): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .get("account/confirm-email");
+      .get("account/confirm-email/" + email);
   }
 
   forgotPassword(email: string): Observable<any> {

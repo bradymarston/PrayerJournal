@@ -14,7 +14,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent, data: { title: extract('Login') } },
   { path: 'register', component: RegisterComponent, data: { title: extract('Register') } },
   { path: 'confirm-email', component: ConfirmEmailComponent, data: { title: extract('Confirm Email') } },
-  { path: 'email-not-confirmed', component: EmailNotConfirmedComponent, data: { title: extract('Confirm Your Email') }, canActivate: [AuthenticationGuard] },
+  { path: 'email-not-confirmed', component: EmailNotConfirmedComponent, data: { title: extract('Confirm Your Email') } },
   { path: 'forgot-password', component: ForgotPasswordComponent, data: { title: extract('Forgot Password') } },
   { path: 'confirm-forgot-password', component: ConfirmForgotPasswordComponent, data: { title: extract('Password Reset Request Reseived') } },
   { path: 'reset-password', component: ResetPasswordComponent, data: { title: extract('Reset Password') } }
