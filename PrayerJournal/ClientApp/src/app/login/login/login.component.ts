@@ -59,10 +59,16 @@ export class LoginComponent implements OnInit {
       this.errors = response.error.errors;
 
     if (response.error instanceof SignInErrorDetails) {
-      if (response.error.reason === "CredentialUnconfirmed")
-        this.router.navigate(["/email-not-confirmed"], { queryParams: { email: this.form.controls.email.value } });
-      else
-        console.log(response.error);
+      switch (response.error.reason) {
+        case "CredentialUnconfirmed":
+          this.router.navigate(["/email-not-confirmed"], { queryParams: { email: this.form.controls.email.value } });
+          break;
+        case "LockedOut":
+          this.errors = ["This account has been locked out, please try again later."];
+          break;
+        default:
+          console.log(response.error);
+      }
     }
   }
 
@@ -73,5 +79,4 @@ export class LoginComponent implements OnInit {
       remember: true
     });
   }
-
 }
