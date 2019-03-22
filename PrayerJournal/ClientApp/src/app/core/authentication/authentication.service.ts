@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { AuthorizationService } from '../authorization.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -104,10 +104,17 @@ export class AuthenticationService {
    * Logs out the user and clear credentials.
    * @return True if the user was logged out successfully.
    */
-  logout(): Observable<boolean> {
+  logoutThisDevice(): Observable<boolean> {
     // Customize credentials invalidation here
     this._authorizationService.clearCredentials();
     return of(true);
+  }
+
+  logoutAllDevices(): Observable<boolean> {
+    return this._http
+      .disableApiPrefix()
+      .post("account/logout", null)
+      .pipe(mergeMap(() => this.logoutThisDevice()));
   }
 
   private processToken(signInResult: SignInResult, remember: boolean) : SignInResult {

@@ -10,14 +10,16 @@
             <mat-icon>person</mat-icon>
           </button>
           <mat-menu #userMenu="matMenu">
-            <mat-list>
-              <mat-list-item>
-                <span translate>Logged in as</span>&nbsp;<b>{{name}}</b>
-              </mat-list-item>
-              <mat-divider></mat-divider>
-            </mat-list>
+            <div mat-menu-item >
+              <span translate>Logged in as</span>&nbsp;<b>{{name}}</b>
+            </div>
+            <mat-divider></mat-divider>
             <a mat-menu-item routerLink="/account/change-password" translate>Change Password</a>
-            <button mat-menu-item (click)="logout()" translate>Logout</button>
+            <button mat-menu-item [matMenuTriggerFor]="logoutMenu" translate>Logout</button>
+          </mat-menu>
+          <mat-menu #logoutMenu="matMenu">
+            <button mat-menu-item (click)="logoutThisDevice()" fxFlex translate>From This Device</button>
+            <button mat-menu-item (click)="logoutAllDevices()" fxFlex translate>From All Devices</button>
           </mat-menu>
         </div>
         <div>

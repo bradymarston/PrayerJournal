@@ -175,6 +175,17 @@ namespace PrayerJournal.Controllers
             return this.IdentityFailure(result);
         }
 
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> LogoutEverywhere()
+        {
+            var user = this.GetAuthenticatedUser<ApplicationUser>();
+
+            await _signInManager.SignOutAsync(user);
+
+            return Ok();
+        }
+
         private async Task SendPasswordTokenAsync(ApplicationUser user)
         {
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
