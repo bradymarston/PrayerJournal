@@ -11,11 +11,5 @@ namespace PrayerJournal.Persistence
             : base(options)
         {
         }
-            protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-
-            builder.Entity<ApplicationUser>().Property(u => u.TokensInvalidBefore).HasDefaultValue(new DateTime(1980, 1, 1));
-        }
     }
 }

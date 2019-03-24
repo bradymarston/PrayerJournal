@@ -140,8 +140,8 @@ namespace PrayerJournal.Controllers.Extensions
 
         private class ErrorItem
         {
-            public string Key { get; set; }
-            public string[] Descriptions { get; set; }
+            public string Key { get; set; } = "";
+            public string[] Descriptions { get; set; } = { };
         }
     }
 }

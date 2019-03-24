@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PrayerJournal.Persistence;
 
 namespace PrayerJournal.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190322124531_MakeFirstAndLastNamesRequiredInApplicationUser")]
+    partial class MakeFirstAndLastNamesRequiredInApplicationUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,10 +147,14 @@ namespace PrayerJournal.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed");
 
                     b.Property<string>("FirstName")
-                        .IsRequired();
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue("");
 
                     b.Property<string>("LastName")
-                        .IsRequired();
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue("");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -170,7 +176,9 @@ namespace PrayerJournal.Persistence.Migrations
 
                     b.Property<bool>("SuggestPasswordChange");
 
-                    b.Property<DateTime>("TokensInvalidBefore");
+                    b.Property<DateTime>("TokensInvalidBefore")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(new DateTime(1980, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
                     b.Property<bool>("TwoFactorEnabled");
 

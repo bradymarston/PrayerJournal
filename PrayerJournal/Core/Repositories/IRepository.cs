@@ -7,7 +7,7 @@ namespace PrayerJournal.Core.Repositories
     {
         void Add(TEntity item);
         void Remove(TEntity item);
-        Task<TEntity> GetAsync(int id);
+        Task<TEntity?> GetAsync(int id);
         Task<IEnumerable<TEntity>> GetAsync();
     }
 }
