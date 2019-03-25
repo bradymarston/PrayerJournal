@@ -55,7 +55,7 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   handleSuccess() {
-    log.debug(`${this.authorizationService.credentials.userName} successfully changed their password`);
+    log.debug(`${this.authorizationService.credentials.userId} successfully changed their password`);
     this.notifications.showMessage("Password successfully changed");
     this.route.queryParams.subscribe(
       params => this.router.navigate([params.redirect || '/'])
@@ -63,7 +63,7 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   handleError(response: HttpErrorResponse) {
-    log.debug(`Password change error for ${this.authorizationService.credentials.userName}: ${response.error}`);
+    log.debug(`Password change error for ${this.authorizationService.credentials.userId}: ${response.error}`);
     if (response.error instanceof BadRequestErrorDetails)
       this.errors = response.error.errors;
   }

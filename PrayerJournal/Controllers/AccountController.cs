@@ -211,7 +211,7 @@ namespace PrayerJournal.Controllers
             var responseObject = new SignInResultsDto
             {
                 Token = token,
-                UserName = user.UserName,
+                UserId = user.Id,
                 Name = $"{user.FirstName} {user.LastName}",
                 Roles = await _userManager.GetRolesAsync(user)
             };

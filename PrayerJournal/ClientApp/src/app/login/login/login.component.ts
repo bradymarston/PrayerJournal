@@ -49,7 +49,7 @@ export class LoginComponent implements OnInit {
   }
 
   handleSuccess(signInResponse: SignInResult) {
-    log.debug(`${signInResponse.userName} successfully logged in`);
+    log.debug(`${signInResponse.userId} successfully logged in`);
     this.router.navigate([this.redirectUrl || '/'], { replaceUrl: true });
   }
 

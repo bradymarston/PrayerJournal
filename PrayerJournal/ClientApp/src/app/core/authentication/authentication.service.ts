@@ -33,7 +33,7 @@ export interface ResetPasswordContext {
 }
 
 export interface SignInResult {
-  userName: string;
+  userId: string;
   name: string;
   caveat: string;
   token: string;
@@ -120,10 +120,11 @@ export class AuthenticationService {
 
   private processToken(signInResult: SignInResult, remember: boolean) : SignInResult {
     const credentials = {
-      userName: signInResult.userName,
+      userId: signInResult.userId,
       name: signInResult.name,
       caveat: signInResult.caveat,
-      token: signInResult.token
+      token: signInResult.token,
+      roles: signInResult.roles
     };
 
     this._authorizationService.setCredentials(credentials, remember);
