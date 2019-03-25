@@ -17,6 +17,8 @@ using PrayerJournal.Core;
 using PrayerJournal.Services;
 using ShadySoft.Authentication;
 using Microsoft.Extensions.Hosting;
+using System.Collections.Generic;
+using PrayerJournal.Services.Extensions;
 
 namespace PrayerJournal
 {
@@ -63,7 +65,7 @@ namespace PrayerJournal
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
         {
             if (env.IsDevelopment())
             {
@@ -81,6 +83,9 @@ namespace PrayerJournal
             app.UseSpaStaticFiles();
 
             app.UseAuthentication();
+
+            roleManager.EnsureRolesExist(new List<IdentityRole> { new IdentityRole { Name = "Admin" } });
+            userManager.EnsureRoleUserExists("Admin", new ApplicationUser { FirstName = "Default", LastName = "Admin", Email = "admin@admin.com", UserName = "Admin" }, "Admin1!");
 
             app.UseMvc(routes =>
             {
