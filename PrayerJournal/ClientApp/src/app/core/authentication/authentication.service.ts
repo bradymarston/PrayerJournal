@@ -37,6 +37,7 @@ export interface SignInResult {
   name: string;
   caveat: string;
   token: string;
+  roles: string[];
 }
 
 /**

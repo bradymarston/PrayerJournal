@@ -6,6 +6,7 @@ export interface Credentials {
   name: string;
   caveat: string;
   token: string;
+  roles: string[];
 }
 
 export const credentialsKey = 'credentials';
@@ -38,6 +39,13 @@ export class AuthorizationService {
    */
   isAuthenticated(): boolean {
     return !!this.credentials;
+  }
+
+  isInRole(roleName: string): boolean {
+    if (!this._credentials.roles)
+      return false;
+
+    return this._credentials.roles.some((userRole) => userRole === roleName);
   }
 
   /**
