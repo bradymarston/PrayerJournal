@@ -45,7 +45,7 @@ namespace PrayerJournal.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                return Ok(GenerateSignInResultDto(user, tokenString));
+                return Ok(await GenerateSignInResultDtoAsync(user, tokenString));
             }
 
             return this.SignInFailure(result);
@@ -71,7 +71,7 @@ namespace PrayerJournal.Controllers
                 await SendEmailTokenAsync(user);
 
                 var token = _signInManager.SignIn(user);
-                return Ok(GenerateSignInResultDto(user, token));
+                return Ok(await GenerateSignInResultDtoAsync(user, token));
             }
 
             return this.IdentityFailure(result);
@@ -110,7 +110,7 @@ namespace PrayerJournal.Controllers
             if (result.Succeeded)
             {
                 var token =_signInManager.SignIn(user);
-                return Ok(GenerateSignInResultDto(user, token));
+                return Ok(await GenerateSignInResultDtoAsync(user, token));
             }
 
             return this.IdentityFailure(result);
@@ -134,7 +134,7 @@ namespace PrayerJournal.Controllers
 
             var tokenString = _signInManager.SignIn(user);
 
-            return Ok(GenerateSignInResultDto(user, tokenString));
+            return Ok(await GenerateSignInResultDtoAsync(user, tokenString));
         }
 
         [HttpGet("password/{email}")]
@@ -206,13 +206,14 @@ namespace PrayerJournal.Controllers
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         }
 
-        private SignInResultsDto GenerateSignInResultDto(ApplicationUser user, string token)
+        private async Task<SignInResultsDto> GenerateSignInResultDtoAsync(ApplicationUser user, string token)
         {
             var responseObject = new SignInResultsDto
             {
                 Token = token,
                 UserName = user.UserName,
-                Name = $"{user.FirstName} {user.LastName}"
+                Name = $"{user.FirstName} {user.LastName}",
+                Roles = await _userManager.GetRolesAsync(user)
             };
 
             if (user.SuggestPasswordChange)
