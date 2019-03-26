@@ -19,6 +19,7 @@ using ShadySoft.Authentication;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using PrayerJournal.Services.Extensions;
+using PrayerJournal.Core.Filters;
 
 namespace PrayerJournal
 {
@@ -56,6 +57,8 @@ namespace PrayerJournal
 
             services.AddUnitOfWork<UnitOfWork>();
             services.AddScoped<IEmailSender, EmailSender>();
+
+            services.AddFindUserFilter<ApplicationUser>();
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

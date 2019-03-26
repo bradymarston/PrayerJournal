@@ -15,6 +15,9 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using PrayerJournal.Core.Filters;
+using PrayerJournal.Core.Mappers;
+using Microsoft.EntityFrameworkCore;
 
 namespace PrayerJournal.Controllers
 {
@@ -24,15 +27,18 @@ namespace PrayerJournal.Controllers
     {
         private readonly ISignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender _emailSender;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             ISignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender
             )
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
         }
@@ -120,7 +126,7 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto passwords)
         {
-            var user = this.GetAuthenticatedUser<ApplicationUser>();
+            var user = HttpContext.GetAuthenticatedUser<ApplicationUser>();
 
             var result = await _userManager.ChangePasswordAsync(user, passwords.OldPassword, passwords.NewPassword);
 
@@ -179,9 +185,78 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> LogoutEverywhere()
         {
-            var user = this.GetAuthenticatedUser<ApplicationUser>();
+            var user = HttpContext.GetAuthenticatedUser<ApplicationUser>();
 
             await _signInManager.SignOutAsync(user);
+
+            return Ok();
+        }
+
+        [HttpGet("users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = _userManager.Users.ToList();
+            var userDtos = new List<UserDto>();
+
+            foreach (var user in users)
+            {
+                userDtos.Add(await user.ToDtoAsync(_userManager));
+            }
+
+            return Ok(userDtos);
+        }
+
+        [HttpGet("roles/{userId}")]
+        [Authorize(Roles = "Admin")]
+        [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
+        public async Task<IActionResult> GetRoles(string userId)
+        {
+            var user = HttpContext.GetFoundUser<ApplicationUser>();
+
+            if (user == null)
+                return NotFound();
+
+            return Ok(await _userManager.GetRolesAsync(user));
+        }
+
+        [HttpPost("roles/{userId}")]
+        [Authorize(Roles = "Admin")]
+        [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
+        public async Task<IActionResult> AddRole(string userId, [Required] string role)
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+                return this.IdentityFailure("RoleDoesNotExist", "This role does not exist");
+
+            var user = HttpContext.GetFoundUser<ApplicationUser>();
+
+            var result = await _userManager.AddToRoleAsync(user, role);
+
+            if (!result.Succeeded)
+                return this.IdentityFailure(result);
+
+            return Ok();
+        }
+
+        [HttpDelete("roles/{userId}")]
+        [Authorize(Roles = "Admin")]
+        [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
+        public async Task<IActionResult> RemoveRole(string userId, [Required] string role)
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+                return this.IdentityFailure("RoleDoesNotExist", "This role does not exist");
+
+            var requestUser = HttpContext.GetAuthenticatedUser<ApplicationUser>();
+
+            if (userId == requestUser.Id && role == "Admin")
+                return this.IdentityFailure("CannotRemoveOwnAdminRole", "You cannot remove your own admin role.");
+
+            var user = HttpContext.GetFoundUser<ApplicationUser>();
+
+            var result = await _userManager.RemoveFromRoleAsync(user, role);
+
+            if (!result.Succeeded)
+                return this.IdentityFailure(result);
 
             return Ok();
         }
