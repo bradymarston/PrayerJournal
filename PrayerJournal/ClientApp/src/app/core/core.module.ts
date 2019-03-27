@@ -17,6 +17,7 @@ import { AuthorizationService } from './authorization.service';
 import { NotificationsService } from './notifications.service';
 import { PasswordMatchErrorMatcher } from './error-matchers/PasswordMatchErrorMatcher';
 import { DialogService } from './dialog.service';
+import { RoleGuard } from './authentication/role.guard';
 
 @NgModule({
   imports: [
@@ -28,6 +29,7 @@ import { DialogService } from './dialog.service';
   providers: [
     AuthenticationService,
     AuthenticationGuard,
+    RoleGuard,
     AuthorizationService,
     I18nService,
     HttpCacheService,

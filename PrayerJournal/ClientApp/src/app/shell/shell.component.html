@@ -44,10 +44,10 @@
             <span translate>About</span>
           </a>
           <mat-divider></mat-divider>
-          <a mat-list-item routerLink="/admin" routerLinkActive="active" (click)="isMobile && sidenav.close()">
+          <a mat-list-item routerLink="/admin" routerLinkActive="active" (click)="isMobile && sidenav.close()" *ngIf="authorizationService.isInRole('Admin')">
             <span translate>Admin</span>
           </a>
-          <mat-divider></mat-divider>
+          <mat-divider *ngIf="authorizationService.isInRole('Admin')"></mat-divider>
         </mat-list>
       </nav>
     </mat-sidenav>
