@@ -222,6 +222,15 @@ namespace PrayerJournal.Controllers
             return Ok();
         }
 
+        [HttpGet("roles")]
+        [Authorize]
+        public async Task<IActionResult> GetAuthorizedUserRoles()
+        {
+            var authorizedUser = HttpContext.GetAuthorizedUser<ApplicationUser>();
+
+            return Ok(await _userManager.GetRolesAsync(authorizedUser));
+        }
+
         [HttpGet("roles/{userId}")]
         [Authorize(Roles = "Admin")]
         [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]

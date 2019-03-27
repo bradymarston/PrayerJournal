@@ -64,6 +64,15 @@ export class AuthorizationService {
     return this._credentials.userId === userId;
   }
 
+  setRoles(roles: string[]) {
+    this.credentials.roles = roles;
+    this.syncStoredCredentials();
+  }
+
+  private syncStoredCredentials() {
+    this.setCredentials(this.credentials, this.isRemembered);
+  }
+
   /**
    * Gets the user credentials.
    * @return The user credentials or null if the user is not authenticated.
@@ -104,6 +113,6 @@ export class AuthorizationService {
 
   public clearCaveat() {
     this.credentials.caveat = null;
-    this.setCredentials(this.credentials, this.isRemembered);
+    this.syncStoredCredentials();
   }
 }

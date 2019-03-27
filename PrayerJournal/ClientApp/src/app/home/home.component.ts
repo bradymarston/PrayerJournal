@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 
 import { QuoteService } from './quote.service';
+import { ActivatedRoute } from '@angular/router';
+import { AuthenticationService } from '../core';
 
 @Component({
   selector: 'app-home',
@@ -13,13 +15,22 @@ export class HomeComponent implements OnInit {
   quote: string;
   isLoading: boolean;
 
-  constructor(private quoteService: QuoteService) { }
+  constructor(private quoteService: QuoteService, private route: ActivatedRoute, private authenticationService: AuthenticationService) { }
 
   ngOnInit() {
+    this.route.queryParamMap.subscribe((params) => {
+      console.log(params);
+      if (params.get("refreshRoles"))
+        this.refreshRoles();
+    });
+
     this.isLoading = true;
     this.quoteService.getRandomQuote({ category: 'dev' })
       .pipe(finalize(() => { this.isLoading = false; }))
       .subscribe((quote: string) => { this.quote = quote; });
   }
 
+  refreshRoles() {
+    this.authenticationService.refreshRoles().subscribe();
+  }
 }

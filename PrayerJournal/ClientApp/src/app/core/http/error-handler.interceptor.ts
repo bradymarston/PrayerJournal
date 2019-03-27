@@ -36,6 +36,9 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
       case 401:
         processedResponse = this.handleUnathorized(response);
         break;
+      case 403:
+        processedResponse = this.handleForbidden(response);
+        break;
       case 500:
         processedResponse = this.handleServerError(response);
         break;
@@ -72,6 +75,12 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
     this._notifications.showMessage("Your login has expired or been revoked, please log in again.");
     this._authorizationService.clearCredentials();
     this.router.navigate(['/login'], { queryParams: { redirect: this.router.url }, replaceUrl: true });
+    return response;
+  }
+
+  handleForbidden(response: HttpErrorResponse): HttpErrorResponse {
+    this._notifications.showMessage("You do not have the appropriate role to complete this action.");
+    this.router.navigate(['/home'], { replaceUrl: true, queryParams: { refreshRoles: true } });
     return response;
   }
 

@@ -126,6 +126,13 @@ export class AuthenticationService {
       .delete(`account/roles/${userId}?role=${role}`);
   }
 
+  refreshRoles(): Observable<void> {
+    return this._http
+      .disableApiPrefix()
+      .get<string[]>("account/roles")
+      .pipe(map(result => this._authorizationService.setRoles(result)));
+  }
+
   /**
    * Logs out the user and clear credentials.
    * @return True if the user was logged out successfully.
