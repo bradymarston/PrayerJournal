@@ -57,7 +57,7 @@ export class AuthorizationService {
     if (!this._credentials.roles)
       return false;
 
-    return this._credentials.roles.some((userRole) => userRole === roleName);
+    return this._credentials.roles.includes(roleName);
   }
 
   isCurrentUser(userId: string): boolean {

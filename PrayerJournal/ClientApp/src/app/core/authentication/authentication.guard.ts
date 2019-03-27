@@ -13,16 +13,9 @@ export class AuthenticationGuard implements CanActivate {
               private authorizationService: AuthorizationService) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    console.log(state.url);
     if (this.authorizationService.isAuthenticated()) {
 
       switch (this.authorizationService.credentials.caveat) {
-        case "ConfirmEmail":
-          if (state.url.startsWith('/email-not-confirmed'))
-            return true;
-
-          this.router.navigate(['/email-not-confirmed'], { queryParams: { redirect: state.url }, replaceUrl: true });
-          return false;
         case "ChangePassword":
           if (state.url.startsWith('/account/change-password'))
             return true;
