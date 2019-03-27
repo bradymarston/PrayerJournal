@@ -11,6 +11,18 @@ export interface Credentials {
 
 export const credentialsKey = 'credentials';
 
+export const roleIdentifiers = [
+  "Admin",
+  "Reviewer",
+  "AddUsers"
+];
+
+export const roleNames = {
+  "Admin": "Administrator",
+  "Reviewer": "Reviewer",
+  "AddUsers": "User Entry"
+};
+
 /**
  * Provides access to credentials without the extra weight of the HttpClient injection
  */
@@ -46,6 +58,10 @@ export class AuthorizationService {
       return false;
 
     return this._credentials.roles.some((userRole) => userRole === roleName);
+  }
+
+  isCurrentUser(userId: string): boolean {
+    return this._credentials.userId === userId;
   }
 
   /**

@@ -126,7 +126,7 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto passwords)
         {
-            var user = HttpContext.GetAuthenticatedUser<ApplicationUser>();
+            var user = HttpContext.GetAuthorizedUser<ApplicationUser>();
 
             var result = await _userManager.ChangePasswordAsync(user, passwords.OldPassword, passwords.NewPassword);
 
@@ -185,7 +185,7 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> LogoutEverywhere()
         {
-            var user = HttpContext.GetAuthenticatedUser<ApplicationUser>();
+            var user = HttpContext.GetAuthorizedUser<ApplicationUser>();
 
             await _signInManager.SignOutAsync(user);
 
@@ -207,10 +207,25 @@ namespace PrayerJournal.Controllers
             return Ok(userDtos);
         }
 
+        [HttpDelete("user/{userId}")]
+        [Authorize(Roles = "Admin")]
+        [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            var user = HttpContext.GetFoundUser<ApplicationUser>();
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (!result.Succeeded)
+                return this.IdentityFailure(result);
+
+            return Ok();
+        }
+
         [HttpGet("roles/{userId}")]
         [Authorize(Roles = "Admin")]
         [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
-        public async Task<IActionResult> GetRoles(string userId)
+        public async Task<IActionResult> GetUserRoles(string userId)
         {
             var user = HttpContext.GetFoundUser<ApplicationUser>();
 
@@ -246,9 +261,9 @@ namespace PrayerJournal.Controllers
             if (!await _roleManager.RoleExistsAsync(role))
                 return this.IdentityFailure("RoleDoesNotExist", "This role does not exist");
 
-            var requestUser = HttpContext.GetAuthenticatedUser<ApplicationUser>();
+            var authorizedUser = HttpContext.GetAuthorizedUser<ApplicationUser>();
 
-            if (userId == requestUser.Id && role == "Admin")
+            if (userId == authorizedUser.Id && role == "Admin")
                 return this.IdentityFailure("CannotRemoveOwnAdminRole", "You cannot remove your own admin role.");
 
             var user = HttpContext.GetFoundUser<ApplicationUser>();

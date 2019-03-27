@@ -16,6 +16,7 @@ import { AuthorizationInterceptor } from './http/authorization.interceptor';
 import { AuthorizationService } from './authorization.service';
 import { NotificationsService } from './notifications.service';
 import { PasswordMatchErrorMatcher } from './error-matchers/PasswordMatchErrorMatcher';
+import { DialogService } from './dialog.service';
 
 @NgModule({
   imports: [
@@ -35,6 +36,7 @@ import { PasswordMatchErrorMatcher } from './error-matchers/PasswordMatchErrorMa
     AuthorizationInterceptor,
     ErrorHandlerInterceptor,
     PasswordMatchErrorMatcher,
+    DialogService,
     CacheInterceptor,
     {
       provide: HttpClient,

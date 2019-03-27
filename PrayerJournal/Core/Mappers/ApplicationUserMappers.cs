@@ -16,7 +16,7 @@ namespace PrayerJournal.Core.Mappers
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
-                LastNama = user.LastName,
+                LastName = user.LastName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 Roles = await userManager.GetRolesAsync(user)

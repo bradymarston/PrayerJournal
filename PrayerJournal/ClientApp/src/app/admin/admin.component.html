@@ -1,0 +1,36 @@
+<div class="container" fxLayout="row wrap" fxLayoutGap="0.5em grid">
+  <app-loader class="inline-loader" [isLoading]="isLoading"></app-loader>
+  <div *ngFor="let user of filteredUsers" fxFlex.md="75%" fxFlex.lg="50%" fxFlex.xl="30%" fxFlex.lt-md="100%">
+    <mat-card fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between start" fxLayoutAlign.xs="start start" fxLayoutGap.xs="0.5em">
+      <div fxLayout="column" fxLayoutAlign="space-between start">
+        <div class="mat-title">
+          {{user.firstName}} {{user.lastName}}
+        </div>
+        <div>
+          <div>{{user.email}}</div>
+          <div>{{user.phoneNumber}}</div>
+        </div>
+      </div>
+      <div fxLayout="row" fxLayout.xs="column" fxLayoutGap.xs="0.5em" fxLayoutAlign="space-between start" fxFlex.gt-xs="60%">
+        <div>
+          <div>
+            <div *ngFor="let role of user.roles" fxLayout="row" fxLayoutAlign="space-between center">
+              <span>{{roleNames[role]}}</span>
+              <button mat-icon-button color="warn" [disabled]="role === 'Admin' && _authorizationService.isCurrentUser(user.id)" (click)="removeRole(user, role)">X</button>
+            </div>
+          </div>
+        </div>
+        <div fxLayout="column" fxLayout.xs="row" fxLayoutAlign="space-between end">
+          <mat-menu #roleMenu="matMenu">
+            <ng-container *ngFor="let roleId of roleIdentifiers">
+              <button mat-menu-item *ngIf="!user.roles.includes(roleId)" (click)="addRole(user, roleId)">{{ roleNames[roleId] }}</button>
+            </ng-container>
+          </mat-menu>
+
+          <button mat-button color="primary" [matMenuTriggerFor]="roleMenu" [disabled]="user.roles.length === roleIdentifiers.length">ADD ROLE</button>
+          <button mat-button color="warn" (click)="deleteUser(user)" [disabled]="_authorizationService.isCurrentUser(user.id)">DELETE USER</button>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>

@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthorizationService } from '../authorization.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ResetPasswordComponent } from '../../login/reset-password/reset-password.component';
+import { User } from '../../common/user';
 
 export interface LoginContext {
   email: string;
@@ -79,26 +80,50 @@ export class AuthenticationService {
   confirmEmail(userId: string, code: string) {
     return this._http
       .disableApiPrefix()
-      .put<SignInResult>("account/confirm-email?userId=" + userId + "&code=" + code, null)
+      .put<SignInResult>(`account/confirm-email?userId=${userId}&code=${code}`, null)
       .pipe(map(result => this.processToken(result, false)));
   }
 
   sendEmailConfirmation(email: string): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .get("account/confirm-email/" + email);
+      .get(`account/confirm-email/${email}`);
   }
 
   forgotPassword(email: string): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .get("account/password/" + email);
+      .get(`account/password/${email}`);
   }
 
   resetPassword(context: ResetPasswordContext, code: string): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .post("account/password?code=" + code, context);
+      .post(`account/password?code=${code}`, context);
+  }
+
+  getUsers(): Observable<User[]> {
+    return this._http
+      .disableApiPrefix()
+      .get<User[]>("account/users");
+  }
+
+  deleteUser(userId: string): Observable<any> {
+    return this._http
+      .disableApiPrefix()
+      .delete(`account/user/${userId}`);
+  }
+
+  addRole(userId: string, role: string): Observable<any> {
+    return this._http
+      .disableApiPrefix()
+      .post(`account/roles/${userId}?role=${role}`, {});
+  }
+
+  removeRole(userId: string, role: string): Observable<any> {
+    return this._http
+      .disableApiPrefix()
+      .delete(`account/roles/${userId}?role=${role}`);
   }
 
   /**

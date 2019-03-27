@@ -13,7 +13,7 @@ import { ShellModule } from './shell/shell.module';
 import { LoginModule } from './login/login.module';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { AccountModule } from './account/account.module';
+import { ConfirmDialogComponent } from './dialogs/confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   imports: [
@@ -30,9 +30,13 @@ import { AccountModule } from './account/account.module';
     LoginModule,
     AppRoutingModule // must be imported as the last module as it contains the fallback route
   ],
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent,
+    ConfirmDialogComponent
+  ],
   providers: [
   ],
+  entryComponents: [ConfirmDialogComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

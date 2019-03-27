@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\core\dialog.service.ts" />
     <None Remove="ClientApp\src\app\core\error-matchers\PasswordMatchErrorMatcher.ts" />
   </ItemGroup>
 
@@ -41,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\app\core\dialog.service.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\core\error-matchers\PasswordMatchErrorMatcher.ts" />
   </ItemGroup>
 
