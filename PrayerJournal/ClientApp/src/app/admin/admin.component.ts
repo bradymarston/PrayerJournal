@@ -14,6 +14,7 @@ export class AdminComponent implements OnInit {
   users: User[] = [];
   roleIdentifiers = roleIdentifiers;
   roleNames = roleNames;
+  searchSubstrings: string[] = [];
 
   constructor(private _authenticationService: AuthenticationService, private _authorizationService: AuthorizationService, private _dialogService: DialogService) { }
 
@@ -37,7 +38,21 @@ export class AdminComponent implements OnInit {
   }
 
   get filteredUsers(): User[] {
-    return this.users;
+    let filteredUsers = this.users;
+
+    this.searchSubstrings.forEach(s => filteredUsers = filteredUsers.filter(
+      u =>
+        u.email.toUpperCase().includes(s.toUpperCase()) ||
+        u.firstName.toUpperCase().includes(s.toUpperCase()) ||
+        u.lastName.toUpperCase().includes(s.toUpperCase())
+    ));
+
+    return filteredUsers;
+  }
+
+  updateSearch(searchString: string) {
+    this.searchSubstrings = searchString.split(" ");
+    console.log(this.searchSubstrings);
   }
 
   deleteUser(user: User) {
