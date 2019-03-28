@@ -1,0 +1,5 @@
+@import "src/theme/theme-variables";
+
+.highlighted {
+  background-color: mat-color($app-accent, lighter);
+}

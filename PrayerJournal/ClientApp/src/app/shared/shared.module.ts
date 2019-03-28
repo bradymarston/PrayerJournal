@@ -6,6 +6,7 @@ import { MaterialModule } from '@app/material.module';
 import { LoaderComponent } from './loader/loader.component';
 import { ValidationWarningComponent } from './validation-warning/validation-warning.component';
 import { ServerErrorsComponent } from './server-errors/server-errors.component';
+import { HighlightSubstringComponent } from './highlight-substring/highlight-substring.component';
 
 @NgModule({
   imports: [
@@ -16,12 +17,14 @@ import { ServerErrorsComponent } from './server-errors/server-errors.component';
   declarations: [
     LoaderComponent,
     ValidationWarningComponent,
-    ServerErrorsComponent
+    ServerErrorsComponent,
+    HighlightSubstringComponent
   ],
   exports: [
     LoaderComponent,
     ValidationWarningComponent,
-    ServerErrorsComponent
+    ServerErrorsComponent,
+    HighlightSubstringComponent
   ]
 })
 export class SharedModule { }
