@@ -15,6 +15,12 @@ export class AdminComponent implements OnInit {
   roleIdentifiers = roleIdentifiers;
   roleNames = roleNames;
   searchSubstrings: string[] = [];
+  sorts = [
+    { id: "lastName", description: "Last Name" },
+    { id: "firstName", description: "First Name" },
+    { id: "email", description: "Email Address" },
+  ];
+  currentSort = this.sorts[0];
 
   constructor(private _authenticationService: AuthenticationService, private _authorizationService: AuthorizationService, private _dialogService: DialogService) { }
 
@@ -46,6 +52,15 @@ export class AdminComponent implements OnInit {
         u.firstName.toUpperCase().includes(s.toUpperCase()) ||
         u.lastName.toUpperCase().includes(s.toUpperCase())
     ));
+
+    filteredUsers.sort((a, b) => {
+      if (a[this.currentSort.id] > b[this.currentSort.id])
+        return 1;
+      if (a[this.currentSort.id] < b[this.currentSort.id])
+        return -1;
+      if (a[this.currentSort.id] === b[this.currentSort.id])
+        return 0;
+    })
 
     return filteredUsers;
   }
