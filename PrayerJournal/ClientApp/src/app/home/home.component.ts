@@ -3,7 +3,7 @@ import { finalize } from 'rxjs/operators';
 
 import { QuoteService } from './quote.service';
 import { ActivatedRoute } from '@angular/router';
-import { AuthenticationService } from '../core';
+import { UserAdminService } from '../core';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit {
   quote: string;
   isLoading: boolean;
 
-  constructor(private quoteService: QuoteService, private route: ActivatedRoute, private authenticationService: AuthenticationService) { }
+  constructor(private quoteService: QuoteService, private route: ActivatedRoute, private userAdminService: UserAdminService) { }
 
   ngOnInit() {
     this.route.queryParamMap.subscribe((params) => {
@@ -31,6 +31,6 @@ export class HomeComponent implements OnInit {
   }
 
   refreshRoles() {
-    this.authenticationService.refreshRoles().subscribe();
+    this.userAdminService.refreshRoles().subscribe();
   }
 }

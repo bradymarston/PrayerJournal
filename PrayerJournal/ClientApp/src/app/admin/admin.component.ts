@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { AuthenticationService, roleNames, roleIdentifiers, AuthorizationService } from '../core';
+import { UserAdminService, roleNames, roleIdentifiers, AuthorizationService } from '../core';
 import { User } from '../common/user';
 import { DialogService } from '../core/dialog.service';
 
@@ -22,15 +22,15 @@ export class AdminComponent implements OnInit {
   ];
   currentSort = this.sorts[0];
 
-  constructor(private _authenticationService: AuthenticationService, private _authorizationService: AuthorizationService, private _dialogService: DialogService) { }
+  constructor(private _userAdminService: UserAdminService, private _authorizationService: AuthorizationService, private _dialogService: DialogService) { }
 
   ngOnInit() {
-    this._authenticationService.getUsers().subscribe(u => this.users = u);
+    this._userAdminService.getUsers().subscribe(u => this.users = u);
   }
 
   addRole(user: User, role: string) {
     user.roles.push(role);
-    this._authenticationService.addRole(user.id, role).subscribe(
+    this._userAdminService.addRole(user.id, role).subscribe(
       () => null,
       () => {
         let index = user.roles.indexOf(role);
@@ -82,7 +82,7 @@ export class AdminComponent implements OnInit {
       if (result) {
         let index = this.users.indexOf(user);
         this.users.splice(index, 1);
-        this._authenticationService.deleteUser(user.id).subscribe(
+        this._userAdminService.deleteUser(user.id).subscribe(
           () => null,
           () => this.users.push(user)
         );
@@ -102,7 +102,7 @@ export class AdminComponent implements OnInit {
       if (result) {
         let index = user.roles.indexOf(role);
         user.roles.splice(index, 1);
-        this._authenticationService.removeRole(user.id, role).subscribe(
+        this._userAdminService.removeRole(user.id, role).subscribe(
           () => null,
           () => user.roles.push(role)
         );

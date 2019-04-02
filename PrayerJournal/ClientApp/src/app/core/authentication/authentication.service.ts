@@ -4,8 +4,6 @@ import { map, mergeMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { AuthorizationService } from '../authorization.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ResetPasswordComponent } from '../../login/reset-password/reset-password.component';
-import { User } from '../../common/user';
 
 export interface LoginContext {
   email: string;
@@ -47,7 +45,7 @@ export interface SignInResult {
  */
 @Injectable()
 export class AuthenticationService {
-
+  private baseAddress = "account";
 
   constructor(private _http: HttpClient, private _authorizationService: AuthorizationService, private _router: Router, private _activatedRoute: ActivatedRoute) { }
 
@@ -59,78 +57,47 @@ export class AuthenticationService {
   login(context: LoginContext): Observable<SignInResult> {
     return this._http
       .disableApiPrefix()
-      .post<SignInResult>("account/login", { email: context.email, password: context.password })
+      .post<SignInResult>(`${this.baseAddress}/login`, { email: context.email, password: context.password })
       .pipe(map(result => this.processToken(result, context.remember)));
   }
 
   register(context: RegistrationContext): Observable<SignInResult> {
     return this._http
       .disableApiPrefix()
-      .post<SignInResult>("account/register", context)
+      .post<SignInResult>(`${this.baseAddress}account/register`, context)
       .pipe(map(result => this.processToken(result, false)));
   }
 
   changePassword(context: ChangePasswordContext): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .put<SignInResult>("account/password", context)
+      .put<SignInResult>(`${this.baseAddress}/password`, context)
       .pipe(map(result => this.processToken(result, this._authorizationService.isRemembered)));
   }
 
   confirmEmail(userId: string, code: string) {
     return this._http
       .disableApiPrefix()
-      .put<SignInResult>(`account/confirm-email?userId=${userId}&code=${code}`, null)
+      .put<SignInResult>(`${this.baseAddress}/confirm-email?userId=${userId}&code=${code}`, null)
       .pipe(map(result => this.processToken(result, false)));
   }
 
   sendEmailConfirmation(email: string): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .get(`account/confirm-email/${email}`);
+      .get(`${this.baseAddress}/confirm-email/${email}`);
   }
 
   forgotPassword(email: string): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .get(`account/password/${email}`);
+      .get(`${this.baseAddress}/password/${email}`);
   }
 
   resetPassword(context: ResetPasswordContext, code: string): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .post(`account/password?code=${code}`, context);
-  }
-
-  getUsers(): Observable<User[]> {
-    return this._http
-      .disableApiPrefix()
-      .get<User[]>("account/users");
-  }
-
-  deleteUser(userId: string): Observable<any> {
-    return this._http
-      .disableApiPrefix()
-      .delete(`account/user/${userId}`);
-  }
-
-  addRole(userId: string, role: string): Observable<any> {
-    return this._http
-      .disableApiPrefix()
-      .post(`account/roles/${userId}?role=${role}`, {});
-  }
-
-  removeRole(userId: string, role: string): Observable<any> {
-    return this._http
-      .disableApiPrefix()
-      .delete(`account/roles/${userId}?role=${role}`);
-  }
-
-  refreshRoles(): Observable<void> {
-    return this._http
-      .disableApiPrefix()
-      .get<string[]>("account/roles")
-      .pipe(map(result => this._authorizationService.setRoles(result)));
+      .post(`${this.baseAddress}/password?code=${code}`, context);
   }
 
   /**
@@ -146,7 +113,7 @@ export class AuthenticationService {
   logoutAllDevices(): Observable<boolean> {
     return this._http
       .disableApiPrefix()
-      .post("account/logout", null)
+      .post(`${this.baseAddress}/logout`, null)
       .pipe(mergeMap(() => this.logoutThisDevice()));
   }
 

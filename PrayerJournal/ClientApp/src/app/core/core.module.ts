@@ -18,6 +18,7 @@ import { NotificationsService } from './notifications.service';
 import { PasswordMatchErrorMatcher } from './error-matchers/PasswordMatchErrorMatcher';
 import { DialogService } from './dialog.service';
 import { RoleGuard } from './authentication/role.guard';
+import { UserAdminService } from './user.admin.service';
 
 @NgModule({
   imports: [
@@ -40,6 +41,7 @@ import { RoleGuard } from './authentication/role.guard';
     PasswordMatchErrorMatcher,
     DialogService,
     CacheInterceptor,
+    UserAdminService,
     {
       provide: HttpClient,
       useClass: HttpService
