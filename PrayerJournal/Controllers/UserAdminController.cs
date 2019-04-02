@@ -17,7 +17,6 @@ namespace PrayerJournal.Controllers
 {
     [ApiController]
     [Route("api/user-admin")]
-    [Authorize(Roles = "Admin")]
     public class UserAdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -30,6 +29,7 @@ namespace PrayerJournal.Controllers
         }
 
         [HttpGet("users")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers()
         {
             var users = _userManager.Users.ToList();
@@ -44,6 +44,7 @@ namespace PrayerJournal.Controllers
         }
 
         [HttpDelete("user/{userId}")]
+        [Authorize(Roles = "Admin")]
         [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
         public async Task<IActionResult> DeleteUser(string userId)
         {
@@ -67,6 +68,7 @@ namespace PrayerJournal.Controllers
         }
 
         [HttpGet("roles/{userId}")]
+        [Authorize(Roles = "Admin")]
         [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
@@ -79,6 +81,7 @@ namespace PrayerJournal.Controllers
         }
 
         [HttpPost("roles/{userId}")]
+        [Authorize(Roles = "Admin")]
         [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
         public async Task<IActionResult> AddRole(string userId, [Required] string role)
         {
@@ -96,6 +99,7 @@ namespace PrayerJournal.Controllers
         }
 
         [HttpDelete("roles/{userId}")]
+        [Authorize(Roles = "Admin")]
         [ServiceFilter(typeof(FindUserFilter<ApplicationUser>))]
         public async Task<IActionResult> RemoveRole(string userId, [Required] string role)
         {
