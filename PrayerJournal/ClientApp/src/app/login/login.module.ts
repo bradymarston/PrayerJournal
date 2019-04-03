@@ -15,6 +15,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { ConfirmForgotPasswordComponent } from './confirm-forgot-password/confirm-forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { BackToLoginButtonComponent } from './back-to-login-button/back-to-login-button.component';
+import { FacebookCallbackComponent } from './facebook-callback/facebook-callback.component';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import { BackToLoginButtonComponent } from './back-to-login-button/back-to-login
     ForgotPasswordComponent,
     ConfirmForgotPasswordComponent,
     ResetPasswordComponent,
-    BackToLoginButtonComponent
+    BackToLoginButtonComponent,
+    FacebookCallbackComponent
   ]
 })
 export class LoginModule { }
