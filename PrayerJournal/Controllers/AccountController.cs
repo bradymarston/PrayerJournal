@@ -25,14 +25,14 @@ namespace PrayerJournal.Controllers
     [Route("[controller]")]
     public class AccountController : Controller
     {
-        private readonly ISignInManager<ApplicationUser> _signInManager;
+        private readonly ShadySoft.Authentication.SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ISignInManager<ApplicationUser> signInManager,
+            ShadySoft.Authentication.SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender
             )
         {
@@ -190,6 +190,38 @@ namespace PrayerJournal.Controllers
             return Ok();
         }
 
+        [HttpPost("external-login")]
+        public async Task<IActionResult> ExternalLogin([Required]string code, [Required]string provider)
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync(code, provider);
+
+            if (info == null)
+                return this.IdentityFailure("ExternalLoginFailure", "Failed to get login info from external service.");
+
+            var (tokenString, user, result) = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, bypassTwoFactor: true);
+            if (result.Succeeded)
+                return Ok(await GenerateSignInResultDtoAsync(user, tokenString));
+
+            if (result.IsLockedOut)
+                return this.SignInFailure(result);
+
+            //User doesn't exist, create one
+            user = CreateUserFromExternalPrincipalClaims(info);
+
+            var userManagerResult = await _userManager.CreateAsync(user);
+            if (userManagerResult.Succeeded)
+            {
+                userManagerResult = await _userManager.AddLoginAsync(user, info);
+                if (userManagerResult.Succeeded)
+                {
+                    tokenString = _signInManager.SignIn(user);
+                    return Ok(await GenerateSignInResultDtoAsync(user, tokenString));
+                }
+            }
+
+            return this.IdentityFailure(userManagerResult);
+        }
+
         private async Task SendPasswordTokenAsync(ApplicationUser user)
         {
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -224,6 +256,18 @@ namespace PrayerJournal.Controllers
                 responseObject.Caveat = "ChangePassword";
 
             return responseObject;
+        }
+
+        private ApplicationUser CreateUserFromExternalPrincipalClaims(ExternalLoginInfo info)
+        {
+            return new ApplicationUser
+            {
+                FirstName = info.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value ??
+                    info.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.Split(" ")[0] ?? "",
+                LastName = info.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value ??
+                    info.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.Split(" ").Last() ?? "",
+                UserName = info.LoginProvider + "-" + info.Principal.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value
+            };
         }
     }
 }

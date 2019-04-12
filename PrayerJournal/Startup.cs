@@ -53,7 +53,15 @@ namespace PrayerJournal
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddAuthentication(ShadyAuthenticationDefaults.AuthenticationScheme)
-                .AddShady<ApplicationUser>(options => options.Realm = "PrayerJournal");
+                .AddShady<ApplicationUser>(options => {
+                    options.Realm = "PrayerJournal";
+                    options.FacebookAppId = "2261817204105691";
+                    options.FacebookCallbackUri = "https://localhost:44306/external-login-callback";
+                    options.FasebookAppSecret = "8c203def6aa880a3ba99949169f7d30d";
+                    options.GoogleAppId = "350476418062-0me9iljbrpb9tva5kh97ddppv53i3kgf.apps.googleusercontent.com";
+                    options.GoogleCallbackUri = "https://localhost:44306/external-login-callback";
+                    options.GoogleAppSecret = "_JqiBVnexoJRlIU8kozwMD86";
+                });
 
             services.AddUnitOfWork<UnitOfWork>();
             services.AddScoped<IEmailSender, EmailSender>();
