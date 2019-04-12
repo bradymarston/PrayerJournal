@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using PrayerJournal.Controllers.Dtos;
+using PrayerJournal.Core.Dtos;
 using PrayerJournal.Core.Models;
 using System;
 using System.Collections.Generic;

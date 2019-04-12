@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PrayerJournal.Controllers.Dtos
+namespace PrayerJournal.Core.Dtos
 {
     public class SignInResultsDto
     {

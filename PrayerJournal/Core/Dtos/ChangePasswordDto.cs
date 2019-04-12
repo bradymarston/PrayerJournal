@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PrayerJournal.Controllers.Dtos
+namespace PrayerJournal.Core.Dtos
 {
     public class ChangePasswordDto
     {

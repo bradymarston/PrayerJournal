@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using ShadySoft.Authentication;
-using PrayerJournal.Controllers.Dtos;
 using PrayerJournal.Controllers.Extensions;
 using PrayerJournal.Core;
 using PrayerJournal.Core.Models;
@@ -18,6 +17,7 @@ using System.Threading.Tasks;
 using PrayerJournal.Core.Filters;
 using PrayerJournal.Core.Mappers;
 using Microsoft.EntityFrameworkCore;
+using PrayerJournal.Core.Dtos;
 
 namespace PrayerJournal.Controllers
 {

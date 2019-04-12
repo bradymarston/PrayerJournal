@@ -4,10 +4,20 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PrayerJournal.Controllers.Dtos
+namespace PrayerJournal.Core.Dtos
 {
-    public class ResetPasswordDto
+    public class RegisterDto
     {
+        [Required]
+        [Display(Name = "First Name")]
+        [MaxLength(32)]
+        public string FirstName { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Last Name")]
+        [MaxLength(32)]
+        public string LastName { get; set; } = "";
+
         [Required]
         [Display(Name = "Email Address")]
         [EmailAddress]

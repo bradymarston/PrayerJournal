@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PrayerJournal.Controllers.Dtos;
 using PrayerJournal.Controllers.Extensions;
+using PrayerJournal.Core.Dtos;
 using PrayerJournal.Core.Filters;
 using PrayerJournal.Core.Mappers;
 using PrayerJournal.Core.Models;
