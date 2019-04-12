@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { UserAdminService, roleNames, roleIdentifiers, AuthorizationService } from '../core';
 import { User } from '../common/user';
 import { DialogService } from '../core/dialog.service';
+import { SortedAndFilteredData } from '../common/sorted-and-filtered-data';
+import { MatSelectChange } from '@angular/material';
 
 @Component({
   selector: 'app-admin',
@@ -11,7 +13,7 @@ import { DialogService } from '../core/dialog.service';
 })
 export class AdminComponent implements OnInit {
 
-  users: User[] = [];
+  users: SortedAndFilteredData<User> = new SortedAndFilteredData<User>([], [], ["lastName", "firstName", "email"], ["lastName", "firstName", "email"]);
   roleIdentifiers = roleIdentifiers;
   roleNames = roleNames;
   searchSubstrings: string[] = [];
@@ -25,7 +27,11 @@ export class AdminComponent implements OnInit {
   constructor(private _userAdminService: UserAdminService, private _authorizationService: AuthorizationService, private _dialogService: DialogService) { }
 
   ngOnInit() {
-    this._userAdminService.getUsers().subscribe(u => this.users = u);
+    this._userAdminService.getUsers().subscribe(u => {
+      this.users.data = u;
+      console.log(this.users.data);
+      console.log(this.users.list);
+    });
   }
 
   addRole(user: User, role: string) {
@@ -40,34 +46,24 @@ export class AdminComponent implements OnInit {
   }
 
   get isLoading(): boolean {
-    return this.users.length === 0;
-  }
-
-  get filteredUsers(): User[] {
-    let filteredUsers = this.users;
-
-    this.searchSubstrings.forEach(s => filteredUsers = filteredUsers.filter(
-      u =>
-        u.email.toUpperCase().includes(s.toUpperCase()) ||
-        u.firstName.toUpperCase().includes(s.toUpperCase()) ||
-        u.lastName.toUpperCase().includes(s.toUpperCase())
-    ));
-
-    filteredUsers.sort((a, b) => {
-      if (a[this.currentSort.id] > b[this.currentSort.id])
-        return 1;
-      if (a[this.currentSort.id] < b[this.currentSort.id])
-        return -1;
-      if (a[this.currentSort.id] === b[this.currentSort.id])
-        return 0;
-    })
-
-    return filteredUsers;
+    return this.users.data.length === 0;
   }
 
   updateSearch(searchString: string) {
     this.searchSubstrings = searchString.split(" ");
-    console.log(this.searchSubstrings);
+    this.users.filterStrings = this.searchSubstrings;
+  }
+
+  updateSort(details: MatSelectChange) {
+    let newSorts = this.sorts.slice(0);
+    let index = newSorts.indexOf(details.value);
+    newSorts.splice(index, 1);
+
+    newSorts.reverse();
+    newSorts.push(details.value);
+    newSorts.reverse();
+
+    this.users.sortByKeys = newSorts.map(sort => sort.id);
   }
 
   deleteUser(user: User) {
@@ -80,11 +76,10 @@ export class AdminComponent implements OnInit {
       noColor: "basic"
     }).subscribe(result => {
       if (result) {
-        let index = this.users.indexOf(user);
-        this.users.splice(index, 1);
+        let index = this.users.remove(user);
         this._userAdminService.deleteUser(user.id).subscribe(
           () => null,
-          () => this.users.push(user)
+          () => this.users.add(user, index)
         );
       }
     });
