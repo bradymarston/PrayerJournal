@@ -15,7 +15,7 @@ export class ShellComponent implements OnInit {
   constructor(private router: Router,
               private titleService: Title,
               private media: ObservableMedia,
-              private authorizationService: AuthorizationService,
+              public authorizationService: AuthorizationService,
               private authenticationService: AuthenticationService,
               private i18nService: I18nService) { }
 
