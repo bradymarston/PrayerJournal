@@ -64,7 +64,7 @@ export class AuthenticationService {
   register(context: RegistrationContext): Observable<SignInResult> {
     return this._http
       .disableApiPrefix()
-      .post<SignInResult>(`${this.baseAddress}account/register`, context)
+      .post<SignInResult>(`${this.baseAddress}/register`, context)
       .pipe(map(result => this.processToken(result, false)));
   }
 
@@ -98,6 +98,21 @@ export class AuthenticationService {
     return this._http
       .disableApiPrefix()
       .post(`${this.baseAddress}/password?code=${code}`, context);
+  }
+
+  facebookLogin(code: string) {
+    return this._http
+      .disableApiPrefix()
+      .post<SignInResult>(`${this.baseAddress}/external-login?code=${code}&provider=Facebook`, null)
+      .pipe(map(result => this.processToken(result, false)));
+
+  }
+
+  externalLogin(code: string, provider: string) {
+    return this._http
+      .disableApiPrefix()
+      .post<SignInResult>(`${this.baseAddress}/external-login?code=${code}&provider=${provider}`, null)
+      .pipe(map(result => this.processToken(result, false)));
   }
 
   /**

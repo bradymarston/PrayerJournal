@@ -9,7 +9,7 @@ import { EmailNotConfirmedComponent } from './email-not-confirmed/email-not-conf
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ConfirmForgotPasswordComponent } from './confirm-forgot-password/confirm-forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
-import { FacebookCallbackComponent } from './facebook-callback/facebook-callback.component';
+import { ExternalLoginCallbackComponent } from './external-login-callback/external-login-callback.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent, data: { title: extract('Login') } },
@@ -19,7 +19,7 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent, data: { title: extract('Forgot Password') } },
   { path: 'confirm-forgot-password', component: ConfirmForgotPasswordComponent, data: { title: extract('Password Reset Request Reseived') } },
   { path: 'reset-password', component: ResetPasswordComponent, data: { title: extract('Reset Password') } },
-  { path: 'facebook-callback', component: FacebookCallbackComponent }
+  { path: 'external-login-callback', component: ExternalLoginCallbackComponent, data: { title: extract('External Login') }  }
 ];
 
 @NgModule({
