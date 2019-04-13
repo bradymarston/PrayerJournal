@@ -19,7 +19,8 @@ namespace PrayerJournal.Core.Mappers
                 LastName = user.LastName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                Roles = await userManager.GetRolesAsync(user)
+                Roles = await userManager.GetRolesAsync(user),
+                ExternalLogins = (await userManager.GetLoginsAsync(user)).Select(l => l.LoginProvider).ToList()
             };
         }
     }

@@ -19,7 +19,12 @@
     <mat-card fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between start" fxLayoutAlign.xs="start start" fxLayoutGap.xs="0.5em">
       <div fxLayout="column" fxLayoutAlign="space-between start">
         <div class="mat-title">
-          <app-highlight-substring [content]="user.firstName + ' ' + user.lastName" [substrings]="searchSubstrings"></app-highlight-substring>
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="0.5rem">
+            <app-highlight-substring [content]="user.firstName + ' ' + user.lastName" [substrings]="searchSubstrings"></app-highlight-substring>
+            <div *ngFor="let provider of user.externalLogins">
+              <img class="social-img" src="{{ constantsService.getExternalLoginProvider(provider).imageUrl }}" alt="angular logo" />
+            </div>
+          </div>
         </div>
         <div>
           <div><app-highlight-substring [content]="user.email" [substrings]="searchSubstrings"></app-highlight-substring></div>

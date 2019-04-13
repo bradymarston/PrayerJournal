@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { UserAdminService, roleNames, roleIdentifiers, AuthorizationService } from '../core';
+import { UserAdminService, roleNames, roleIdentifiers, AuthorizationService, ConstantsService } from '../core';
 import { User } from '../common/user';
 import { DialogService } from '../core/dialog.service';
 import { SortedAndFilteredData } from '../common/sorted-and-filtered-data';
@@ -24,7 +24,7 @@ export class AdminComponent implements OnInit {
   ];
   currentSort = this.sorts[0];
 
-  constructor(private _userAdminService: UserAdminService, private _authorizationService: AuthorizationService, private _dialogService: DialogService) { }
+  constructor(private _userAdminService: UserAdminService, private _authorizationService: AuthorizationService, private _dialogService: DialogService, public constantsService: ConstantsService) { }
 
   ngOnInit() {
     this._userAdminService.getUsers().subscribe(u => {
