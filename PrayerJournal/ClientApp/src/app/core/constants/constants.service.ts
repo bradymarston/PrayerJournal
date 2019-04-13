@@ -22,6 +22,14 @@ export class ConstantsService {
       otherQueryParams: "&response_type=code&scope=profile"
     },
     {
+      id: "Microsoft",
+      displayName: "Microsoft",
+      imageUrl: "assets/ms-symbollockup_mssymbol_19.png",
+      codeUrl: "//login.microsoftonline.com/common/oauth2/v2.0/authorize",
+      clientId: "f3619043-88c9-419d-8167-7a42abb86ae3",
+      otherQueryParams: "&response_type=code&scope=https%3A%2F%2Fgraph.microsoft.com%2Fuser.read"
+    },
+    {
       id: "Facebook",
       displayName: "Facebook",
       imageUrl: "assets/f-ogo_RGB_HEX-58.png",

@@ -66,6 +66,9 @@ namespace PrayerJournal
                     options.GoogleAppId = "350476418062-0me9iljbrpb9tva5kh97ddppv53i3kgf.apps.googleusercontent.com";
                     options.GoogleCallbackUri = "https://localhost:44306/external-login-callback";
                     options.GoogleAppSecret = "_JqiBVnexoJRlIU8kozwMD86";
+                    options.MicrosoftAppId = "f3619043-88c9-419d-8167-7a42abb86ae3";
+                    options.MicrosoftCallbackUri = "https://localhost:44306/external-login-callback";
+                    options.MicrosoftAppSecret = "oumSXCX331[*qhkpFLG19*^";
                 });
 
             services.AddUnitOfWork<UnitOfWork>();
