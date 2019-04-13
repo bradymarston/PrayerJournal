@@ -71,7 +71,7 @@ export class ChangePasswordComponent implements OnInit {
   private createForm() {
     this.form = this.formBuilder.group({
       oldPassword: ['', Validators.required],
-      newPassword: ['', Validators.required],
+      newPassword: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(100)]],
       confirmPassword: ['']
     }, { validators: [PasswordValidators.passwordsMatch] });
   }
