@@ -12,12 +12,16 @@ const log = new Logger('External-Login');
 export class ExternalLoginCallbackComponent implements OnInit {
   provider: string;
   hasError = false;
+  redirectUrl: any;
 
   constructor(private route: ActivatedRoute, private authenticationService: AuthenticationService, private router: Router) { }
 
   ngOnInit() {
     let code = this.route.snapshot.queryParamMap.get("code");
-    this.provider = this.route.snapshot.queryParamMap.get("state");
+    let state = JSON.parse(this.route.snapshot.queryParamMap.get("state"));
+
+    this.provider = state.provider;
+    this.redirectUrl = state.redirect;
     this.authenticationService.externalLogin(code, this.provider).subscribe(
       signInResult => this.handleSuccess(signInResult),
       () => this.hasError = true
@@ -26,6 +30,6 @@ export class ExternalLoginCallbackComponent implements OnInit {
 
   handleSuccess(signInResponse: SignInResult) {
     log.debug(`${signInResponse.userId} successfully logged in using ${this.provider}.`);
-    this.router.navigate(['/'], { replaceUrl: true });
+    this.router.navigate([this.redirectUrl || '/'], { replaceUrl: true });
   }
 }

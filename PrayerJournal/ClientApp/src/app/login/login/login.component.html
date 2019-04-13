@@ -54,18 +54,10 @@
             </button>
             <div fxLayout="row" fxLayout.lt-md="column" fxLayoutAlign="end center" fxLayoutAlign.lt-md="start center" fxLayoutGap="0.5rem">
               <span>Sign in with: </span>
-              <a mat-raised-button href="https://www.facebook.com/v3.2/dialog/oauth?client_id=2261817204105691&redirect_uri=https://localhost:44306/external-login-callback&state=Facebook" queryParamsHandling="preserve">
-                <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="24px">
-                  <img class="button-img" src="assets/f-ogo_RGB_HEX-58.png" alt="angular logo" />
-                  <span>FACEBOOK</span>
-                </div>
-              </a>
-              <a mat-raised-button href="https://accounts.google.com/o/oauth2/v2/auth?oauthgdpr=1&client_id=350476418062-0me9iljbrpb9tva5kh97ddppv53i3kgf.apps.googleusercontent.com&redirect_uri=https://localhost:44306/external-login-callback&response_type=code&scope=profile&state=Google" queryParamsHandling="preserve">
-                <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="24px">
-                  <img class="button-img" src="assets/google-logo-72.png" alt="angular logo" />
-                  <span>GOOGLE</span>
-                </div>
-              </a>
+              <app-external-login-button *ngFor="let provider of constantsService.externalLoginProviders"
+                                         [provider]="provider"
+                                         [redirectUrl]="redirectUrl">
+              </app-external-login-button>
             </div>
           </div>
         </form>

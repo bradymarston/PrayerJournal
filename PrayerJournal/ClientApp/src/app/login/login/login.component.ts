@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/fo
 import { finalize } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
-import { Logger, AuthenticationService, SignInResult } from '@app/core';
+import { Logger, AuthenticationService, SignInResult, ConstantsService } from '@app/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
 import { SignInErrorDetails } from '../../common/sign-in-error-details';
@@ -27,7 +27,9 @@ export class LoginComponent implements OnInit {
   constructor(private router: Router,
               private route: ActivatedRoute,
               private formBuilder: FormBuilder,
-              private authenticationService: AuthenticationService) {
+              private authenticationService: AuthenticationService,
+              public constantsService: ConstantsService
+            ) {
     this.createForm();
   }
 

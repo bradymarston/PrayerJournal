@@ -16,6 +16,7 @@ import { ConfirmForgotPasswordComponent } from './confirm-forgot-password/confir
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { BackToLoginButtonComponent } from './back-to-login-button/back-to-login-button.component';
 import { ExternalLoginCallbackComponent } from './external-login-callback/external-login-callback.component';
+import { ExternalLoginButtonComponent } from './external-login-button/external-login-button.component';
 
 @NgModule({
   imports: [
@@ -36,7 +37,8 @@ import { ExternalLoginCallbackComponent } from './external-login-callback/extern
     ConfirmForgotPasswordComponent,
     ResetPasswordComponent,
     BackToLoginButtonComponent,
-    ExternalLoginCallbackComponent
+    ExternalLoginCallbackComponent,
+    ExternalLoginButtonComponent
   ]
 })
 export class LoginModule { }
