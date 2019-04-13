@@ -243,6 +243,7 @@ namespace PrayerJournal.Controllers
             {
                 Token = token,
                 UserId = user.Id,
+                HasPassword = user.PasswordHash != null,
                 Name = $"{user.FirstName} {user.LastName}",
                 Roles = await _userManager.GetRolesAsync(user)
             };

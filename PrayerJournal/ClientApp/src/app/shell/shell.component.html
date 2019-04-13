@@ -13,8 +13,10 @@
             <div mat-menu-item >
               <span translate>Logged in as</span>&nbsp;<b>{{name}}</b>
             </div>
-            <mat-divider></mat-divider>
-            <a mat-menu-item routerLink="/account/change-password" translate>Change Password</a>
+            <ng-container *ngIf="authorizationService.credentials.hasPassword">
+              <mat-divider></mat-divider>
+              <a mat-menu-item routerLink="/account/change-password" translate>Change Password</a>
+            </ng-container>
             <button mat-menu-item [matMenuTriggerFor]="logoutMenu" translate>Logout</button>
           </mat-menu>
           <mat-menu #logoutMenu="matMenu">

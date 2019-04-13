@@ -4,6 +4,7 @@ export interface Credentials {
   // Customize received credentials here
   userId: string;
   name: string;
+  hasPassword: boolean;
   caveat: string;
   token: string;
   roles: string[];

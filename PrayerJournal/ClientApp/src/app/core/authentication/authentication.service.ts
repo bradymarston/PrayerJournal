@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import { AuthorizationService } from '../authorization.service';
+import { AuthorizationService, Credentials } from '../authorization.service';
 import { Router, ActivatedRoute } from '@angular/router';
 
 export interface LoginContext {
@@ -34,6 +34,7 @@ export interface ResetPasswordContext {
 export interface SignInResult {
   userId: string;
   name: string;
+  hasPassword: boolean;
   caveat: string;
   token: string;
   roles: string[];
@@ -133,9 +134,10 @@ export class AuthenticationService {
   }
 
   private processToken(signInResult: SignInResult, remember: boolean) : SignInResult {
-    const credentials = {
+    const credentials: Credentials = {
       userId: signInResult.userId,
       name: signInResult.name,
+      hasPassword: signInResult.hasPassword,
       caveat: signInResult.caveat,
       token: signInResult.token,
       roles: signInResult.roles
