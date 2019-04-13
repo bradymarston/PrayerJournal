@@ -131,8 +131,6 @@ namespace PrayerJournal.Controllers
             if (!result.Succeeded)
                 return this.IdentityFailure(result);
 
-            await _signInManager.SignOutAsync(user);
-
             user.SuggestPasswordChange = false;
             await _userManager.UpdateAsync(user);
 
@@ -167,10 +165,7 @@ namespace PrayerJournal.Controllers
 
             var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
             if (result.Succeeded)
-            {
-                await _signInManager.SignOutAsync(user);
                 return Ok();
-            }
 
             //Lie to the client if the token is invalid
             if (result.Errors.FirstOrDefault(e => e.Code == "InvalidToken") != null)
