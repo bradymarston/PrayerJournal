@@ -101,14 +101,6 @@ export class AuthenticationService {
       .post(`${this.baseAddress}/password?code=${code}`, context);
   }
 
-  facebookLogin(code: string) {
-    return this._http
-      .disableApiPrefix()
-      .post<SignInResult>(`${this.baseAddress}/external-login?code=${code}&provider=Facebook`, null)
-      .pipe(map(result => this.processToken(result, false)));
-
-  }
-
   externalLogin(code: string, provider: string) {
     return this._http
       .disableApiPrefix()
