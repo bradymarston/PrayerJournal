@@ -20,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using PrayerJournal.Services.Extensions;
 using PrayerJournal.Core.Filters;
+using ShadySoft.Authentication.OAuth;
 
 namespace PrayerJournal
 {
@@ -60,13 +61,21 @@ namespace PrayerJournal
             services.AddAuthentication(ShadyAuthenticationDefaults.AuthenticationScheme)
                 .AddShady<ApplicationUser>(options => {
                     options.Realm = "PrayerJournal";
-                    options.ExternalLoginCallbackUri = "https://localhost:44306/external-login-callback";
-                    options.FacebookAppId = "2261817204105691";
-                    options.FasebookAppSecret = "8c203def6aa880a3ba99949169f7d30d";
-                    options.GoogleAppId = "350476418062-0me9iljbrpb9tva5kh97ddppv53i3kgf.apps.googleusercontent.com";
-                    options.GoogleAppSecret = "_JqiBVnexoJRlIU8kozwMD86";
-                    options.MicrosoftAppId = "f3619043-88c9-419d-8167-7a42abb86ae3";
-                    options.MicrosoftAppSecret = "oumSXCX331[*qhkpFLG19*^";
+                    options.ExternalLoginProviders = new List<IOAuthHttpService>
+                    {
+                        new FacebookHttpService(
+                            Configuration.GetExternalLoginClientId("Facebook"),
+                            Configuration.GetExternalLoginClientSecret("Facebook"),
+                            Configuration.GetExternalLoginCallbackUri()),
+                        new GoogleHttpService(
+                            Configuration.GetExternalLoginClientId("Google"),
+                            Configuration.GetExternalLoginClientSecret("Google"),
+                            Configuration.GetExternalLoginCallbackUri()),
+                        new MicrosoftHttpService(
+                            Configuration.GetExternalLoginClientId("Microsoft"),
+                            Configuration.GetExternalLoginClientSecret("Microsoft"),
+                            Configuration.GetExternalLoginCallbackUri())
+                    };
                 });
 
             services.AddUnitOfWork<UnitOfWork>();
