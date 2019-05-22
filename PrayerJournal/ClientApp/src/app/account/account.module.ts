@@ -8,6 +8,7 @@ import { SharedModule } from '@app/shared';
 import { MaterialModule } from '@app/material.module';
 import { AccountRoutingModule } from './account-routing.module';
 import { ChangePasswordComponent } from './change-password/change-password.component';
+import { ProfileComponent } from './profile/profile.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
     AccountRoutingModule
   ],
   declarations: [
-    ChangePasswordComponent
+    ChangePasswordComponent,
+    ProfileComponent
   ]
 })
 export class AccountModule { }

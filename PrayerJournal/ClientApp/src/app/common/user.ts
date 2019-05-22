@@ -4,6 +4,7 @@ export class User {
   lastName = "";
   email = "";
   phoneNumber = "";
+  hasPassword = false;
   roles: string[] = [];
   externalLogins: string[] = [];
 }

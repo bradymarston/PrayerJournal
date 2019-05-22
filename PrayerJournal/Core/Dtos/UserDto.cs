@@ -13,6 +13,7 @@ namespace PrayerJournal.Core.Dtos
         public string LastName { get; set; } = "";
         public string? Email { get; set; } 
         public string? PhoneNumber { get; set; }
+        public bool HasPassword { get; set; }
         public IEnumerable<string> Roles { get; set; } = new List<string>();
         public IEnumerable<string> ExternalLogins { get; set; } = new List<string>();
     }

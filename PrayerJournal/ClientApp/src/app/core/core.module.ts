@@ -20,6 +20,7 @@ import { DialogService } from './dialog.service';
 import { RoleGuard } from './authentication/role.guard';
 import { UserAdminService } from './user.admin.service';
 import { ConstantsService } from './constants/constants.service';
+import { UserProfileService } from './user-profile.service';
 
 @NgModule({
   imports: [
@@ -44,6 +45,7 @@ import { ConstantsService } from './constants/constants.service';
     CacheInterceptor,
     ConstantsService,
     UserAdminService,
+    UserProfileService,
     {
       provide: HttpClient,
       useClass: HttpService

@@ -7,7 +7,9 @@ var User = /** @class */ (function () {
         this.lastName = "";
         this.email = "";
         this.phoneNumber = "";
+        this.hasPassword = false;
         this.roles = [];
+        this.externalLogins = [];
     }
     return User;
 }());

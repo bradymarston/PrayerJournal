@@ -14,3 +14,4 @@ export * from './logger.service';
 export * from './notifications.service';
 export * from './user.admin.service';
 export * from './constants/constants.service';
+export * from './user-profile.service';

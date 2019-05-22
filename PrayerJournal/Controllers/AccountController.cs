@@ -217,6 +217,15 @@ namespace PrayerJournal.Controllers
             return this.IdentityFailure(userManagerResult);
         }
 
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<IActionResult> GetProfile()
+        {
+            var user = HttpContext.GetAuthorizedUser<ApplicationUser>();
+
+            return Ok(await user.ToDtoAsync(_userManager));
+        }
+
         private async Task SendPasswordTokenAsync(ApplicationUser user)
         {
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);

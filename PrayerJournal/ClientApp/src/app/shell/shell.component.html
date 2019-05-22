@@ -10,9 +10,11 @@
             <mat-icon>person</mat-icon>
           </button>
           <mat-menu #userMenu="matMenu">
-            <div mat-menu-item >
+            <div mat-menu-item>
               <span translate>Logged in as</span>&nbsp;<b>{{name}}</b>
             </div>
+            <mat-divider></mat-divider>
+            <a mat-menu-item routerLink="/account/profile" translate>Edit Profile</a>
             <ng-container *ngIf="authorizationService.credentials.hasPassword">
               <mat-divider></mat-divider>
               <a mat-menu-item routerLink="/account/change-password" translate>Change Password</a>
