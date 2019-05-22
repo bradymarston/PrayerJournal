@@ -40,7 +40,7 @@ namespace PrayerJournal
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddMvc()
+            services.AddMvc(options => options.EnableEndpointRouting = false)
                 .AddNewtonsoftJson();
 
             services.ConfigureAutomaticValidationResponse();
