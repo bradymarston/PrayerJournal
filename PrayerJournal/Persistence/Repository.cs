@@ -19,7 +19,7 @@ namespace PrayerJournal.Persistence
             _context.Add(item);
         }
 
-        virtual public async Task<TEntity?> GetAsync(int id)
+        virtual public async Task<TEntity> GetAsync(int id)
         {
             return await _context.FindAsync<TEntity>(id);
         }
