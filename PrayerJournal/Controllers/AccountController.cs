@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using ShadySoft.Authentication;
+using ShadySoft.Authentication.Extensions.Context;
 using PrayerJournal.Controllers.Extensions;
 using PrayerJournal.Core;
 using PrayerJournal.Core.Models;
@@ -18,6 +18,7 @@ using PrayerJournal.Core.Filters;
 using PrayerJournal.Core.Mappers;
 using Microsoft.EntityFrameworkCore;
 using PrayerJournal.Core.Dtos;
+using ShadySoft.OAuth;
 
 namespace PrayerJournal.Controllers
 {
@@ -25,31 +26,34 @@ namespace PrayerJournal.Controllers
     [Route("[controller]")]
     public class AccountController : Controller
     {
-        private readonly ShadySoft.Authentication.SignInManager<ApplicationUser> _signInManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly OAuthService _oAuthService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ShadySoft.Authentication.SignInManager<ApplicationUser> signInManager,
-            IEmailSender emailSender
+            SignInManager<ApplicationUser> signInManager,
+            IEmailSender emailSender,
+            OAuthService oAuthService
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
+            _oAuthService = oAuthService;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto model)
         {
-            var (tokenString, result) = await _signInManager.EmailPasswordSignInAsync(model.Email, model.Password, true);
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.Remember, true);
 
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                return Ok(await GenerateSignInResultDtoAsync(user, tokenString));
+                return Ok(await GenerateSignInResultDtoAsync(user));
             }
 
             return this.SignInFailure(result);
@@ -74,8 +78,8 @@ namespace PrayerJournal.Controllers
             {
                 await SendEmailTokenAsync(user);
 
-                var token = _signInManager.SignIn(user);
-                return Ok(await GenerateSignInResultDtoAsync(user, token));
+                await _signInManager.SignInAsync(user, false);
+                return Ok(await GenerateSignInResultDtoAsync(user));
             }
 
             return this.IdentityFailure(result);
@@ -113,8 +117,8 @@ namespace PrayerJournal.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, code);
             if (result.Succeeded)
             {
-                var token =_signInManager.SignIn(user);
-                return Ok(await GenerateSignInResultDtoAsync(user, token));
+                await _signInManager.SignInAsync(user, false);
+                return Ok(await GenerateSignInResultDtoAsync(user));
             }
 
             return this.IdentityFailure(result);
@@ -134,9 +138,9 @@ namespace PrayerJournal.Controllers
             user.SuggestPasswordChange = false;
             await _userManager.UpdateAsync(user);
 
-            var tokenString = _signInManager.SignIn(user);
+            await _signInManager.RefreshSignInAsync(user);
 
-            return Ok(await GenerateSignInResultDtoAsync(user, tokenString));
+            return Ok();
         }
 
         [HttpGet("password/{email}")]
@@ -180,41 +184,58 @@ namespace PrayerJournal.Controllers
         {
             var user = HttpContext.GetAuthorizedUser<ApplicationUser>();
 
-            await _signInManager.SignOutAsync(user);
+            await _signInManager.SignOutAsync();
 
             return Ok();
         }
 
-        [HttpPost("external-login")]
-        public async Task<IActionResult> ExternalLogin([Required]string code, [Required]string provider)
+        [HttpGet("external-login/{provider}")]
+        public IActionResult GetExternalLoginUrl(string provider)
         {
-            var info = await _signInManager.GetExternalLoginInfoAsync(code, provider);
+            return Ok(new ExternalLoginUrlDto
+            {
+                Url = _oAuthService.BuildChallengeUrl(provider)
+            });
+        }
+
+        [HttpPost("external-login")]
+        public async Task<IActionResult> ExternalLogin([Required]string code, [Required]string state, [Required]string provider)
+        {
+            ExternalLoginInfo info;
+
+            try
+            {
+                info = await _oAuthService.GetExternalLoginInfo(provider, code, state);
+            }
+            catch (Exception)
+            {
+                return this.IdentityFailure("ExternalLoginFailure", "Failed to get login info from external service.");
+            }
 
             if (info == null)
                 return this.IdentityFailure("ExternalLoginFailure", "Failed to get login info from external service.");
 
-            var (tokenString, user, result) = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, bypassTwoFactor: true);
-            if (result.Succeeded)
-                return Ok(await GenerateSignInResultDtoAsync(user, tokenString));
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
-            if (result.IsLockedOut)
-                return this.SignInFailure(result);
-
-            //User doesn't exist, create one
-            user = CreateUserFromExternalPrincipalClaims(info);
-
-            var userManagerResult = await _userManager.CreateAsync(user);
-            if (userManagerResult.Succeeded)
+            if (user == null)
             {
+                //User doesn't exist, create one
+                user = CreateUserFromExternalPrincipalClaims(info.Principal, provider);
+
+                var userManagerResult = await _userManager.CreateAsync(user);
+                if (!userManagerResult.Succeeded)
+                    return this.IdentityFailure(userManagerResult);
+
                 userManagerResult = await _userManager.AddLoginAsync(user, info);
-                if (userManagerResult.Succeeded)
+                if (!userManagerResult.Succeeded)
                 {
-                    tokenString = _signInManager.SignIn(user);
-                    return Ok(await GenerateSignInResultDtoAsync(user, tokenString));
+                    await _userManager.DeleteAsync(user);
+                    return this.IdentityFailure(userManagerResult);
                 }
             }
 
-            return this.IdentityFailure(userManagerResult);
+            await _signInManager.SignInAsync(user, false);
+            return Ok(await GenerateSignInResultDtoAsync(user));
         }
 
         [HttpGet("profile")]
@@ -246,12 +267,10 @@ namespace PrayerJournal.Controllers
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
         }
 
-        private async Task<SignInResultsDto> GenerateSignInResultDtoAsync(ApplicationUser user, string token)
+        private async Task<SignInResultsDto> GenerateSignInResultDtoAsync(ApplicationUser user)
         {
             var responseObject = new SignInResultsDto
             {
-                Token = token,
-                UserId = user.Id,
                 HasPassword = user.PasswordHash != null,
                 Name = $"{user.FirstName} {user.LastName}",
                 Roles = await _userManager.GetRolesAsync(user)
@@ -263,15 +282,15 @@ namespace PrayerJournal.Controllers
             return responseObject;
         }
 
-        private ApplicationUser CreateUserFromExternalPrincipalClaims(ExternalLoginInfo info)
+        private ApplicationUser CreateUserFromExternalPrincipalClaims(ClaimsPrincipal principal, string provider)
         {
             return new ApplicationUser
             {
-                FirstName = info.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value ??
-                    info.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.Split(" ")[0] ?? "",
-                LastName = info.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value ??
-                    info.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.Split(" ").Last() ?? "",
-                UserName = info.LoginProvider + "-" + info.Principal.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value
+                FirstName = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value ??
+                    principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.Split(" ")[0] ?? "",
+                LastName = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Surname)?.Value ??
+                    principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value.Split(" ").Last() ?? "",
+                UserName = provider + "-" + principal.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value
             };
         }
     }

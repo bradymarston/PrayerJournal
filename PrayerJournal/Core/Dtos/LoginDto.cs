@@ -13,5 +13,8 @@ namespace PrayerJournal.Core.Dtos
 
         [Required]
         public string Password { get; set; } = "";
+
+        [Required]
+        public bool Remember { get; set; }
     }
 }

@@ -36,8 +36,8 @@ export class ShellComponent implements OnInit {
   }
 
   get name(): string | null {
-    const credentials = this.authorizationService.credentials;
-    return credentials ? credentials.name : null;
+    const userInfo = this.authorizationService.userInfo;
+    return userInfo ? userInfo.name : null;
   }
 
   get languages(): string[] {

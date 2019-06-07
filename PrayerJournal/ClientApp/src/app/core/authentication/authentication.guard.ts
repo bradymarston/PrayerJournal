@@ -15,7 +15,7 @@ export class AuthenticationGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     if (this.authorizationService.isAuthenticated()) {
 
-      switch (this.authorizationService.credentials.caveat) {
+      switch (this.authorizationService.userInfo.caveat) {
         case "ChangePassword":
           if (state.url.startsWith('/account/change-password'))
             return true;
@@ -26,7 +26,8 @@ export class AuthenticationGuard implements CanActivate {
           return true;
       }
     }
-
+    log.debug(this.authorizationService.authInfo);
+    log.debug(this.authorizationService.userInfo);
     log.debug('Not authenticated, redirecting and adding redirect url...');
     this.router.navigate(['/login'], { queryParams: { redirect: state.url }, replaceUrl: true });
     return false;

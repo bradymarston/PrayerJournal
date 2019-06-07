@@ -19,5 +19,8 @@ namespace PrayerJournal.Core.Dtos
         [Display(Name = "Confirm new password")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
+
+        [Required]
+        public bool IsPersistent { get; set; }
     }
 }

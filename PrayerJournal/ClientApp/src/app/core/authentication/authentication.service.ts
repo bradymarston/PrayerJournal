@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import { AuthorizationService, Credentials } from '../authorization.service';
+import { AuthorizationService, StoredUserInfo } from '../authorization.service';
 import { Router, ActivatedRoute } from '@angular/router';
 
 export interface LoginContext {
@@ -32,17 +32,18 @@ export interface ResetPasswordContext {
 }
 
 export interface SignInResult {
-  userId: string;
   name: string;
   hasPassword: boolean;
   caveat: string;
-  token: string;
   roles: string[];
+}
+
+interface ExternalLoginUrl {
+  url: string;
 }
 
 /**
  * Provides a base for authentication workflow.
- * The Credentials interface as well as login/logout methods should be replaced with proper implementation.
  */
 @Injectable()
 export class AuthenticationService {
@@ -53,34 +54,33 @@ export class AuthenticationService {
   /**
    * Authenticates the user.
    * @param context The login parameters.
-   * @return The user credentials.
+   * @return The user info.
    */
   login(context: LoginContext): Observable<SignInResult> {
     return this._http
       .disableApiPrefix()
-      .post<SignInResult>(`${this.baseAddress}/login`, { email: context.email, password: context.password })
-      .pipe(map(result => this.processToken(result, context.remember)));
+      .post<SignInResult>(`${this.baseAddress}/login`, context)
+      .pipe(map(result => this.processSignInResult(result, context.remember)));
   }
 
   register(context: RegistrationContext): Observable<SignInResult> {
     return this._http
       .disableApiPrefix()
       .post<SignInResult>(`${this.baseAddress}/register`, context)
-      .pipe(map(result => this.processToken(result, false)));
+      .pipe(map(result => this.processSignInResult(result, false)));
   }
 
   changePassword(context: ChangePasswordContext): Observable<any> {
     return this._http
       .disableApiPrefix()
-      .put<SignInResult>(`${this.baseAddress}/password`, context)
-      .pipe(map(result => this.processToken(result, this._authorizationService.isRemembered)));
+      .put(`${this.baseAddress}/password`, context);
   }
 
   confirmEmail(userId: string, code: string) {
     return this._http
       .disableApiPrefix()
       .put<SignInResult>(`${this.baseAddress}/confirm-email?userId=${userId}&code=${code}`, null)
-      .pipe(map(result => this.processToken(result, false)));
+      .pipe(map(result => this.processSignInResult(result, false)));
   }
 
   sendEmailConfirmation(email: string): Observable<any> {
@@ -101,11 +101,18 @@ export class AuthenticationService {
       .post(`${this.baseAddress}/password?code=${code}`, context);
   }
 
-  externalLogin(code: string, provider: string) {
+  getExternalLoginUri(provider: string): Observable<string> {
     return this._http
       .disableApiPrefix()
-      .post<SignInResult>(`${this.baseAddress}/external-login?code=${code}&provider=${provider}`, null)
-      .pipe(map(result => this.processToken(result, false)));
+      .get<ExternalLoginUrl>(`${this.baseAddress}/external-login/${provider}`)
+      .pipe(map(result => result.url));
+  }
+
+  externalLogin(code: string, provider: string, securityState: string) {
+    return this._http
+      .disableApiPrefix()
+      .post<SignInResult>(`${this.baseAddress}/external-login?code=${code}&state=${securityState}&provider=${provider}`, null)
+      .pipe(map(result => this.processSignInResult(result, false)));
   }
 
   /**
@@ -125,17 +132,15 @@ export class AuthenticationService {
       .pipe(mergeMap(() => this.logoutThisDevice()));
   }
 
-  private processToken(signInResult: SignInResult, remember: boolean) : SignInResult {
-    const credentials: Credentials = {
-      userId: signInResult.userId,
+  private processSignInResult(signInResult: SignInResult, remember: boolean) : SignInResult {
+    const userInfo: StoredUserInfo = {
       name: signInResult.name,
       hasPassword: signInResult.hasPassword,
       caveat: signInResult.caveat,
-      token: signInResult.token,
       roles: signInResult.roles
     };
 
-    this._authorizationService.setCredentials(credentials, remember);
+    this._authorizationService.setUserInfo(userInfo, remember);
 
     if (signInResult.caveat === "ChangePassword") {
       this._router.navigate(["/account/change-password"], { queryParamsHandling: "preserve" });

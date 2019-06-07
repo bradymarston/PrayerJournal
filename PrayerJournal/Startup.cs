@@ -20,7 +20,10 @@ using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using PrayerJournal.Services.Extensions;
 using PrayerJournal.Core.Filters;
-using ShadySoft.Authentication.OAuth;
+using ShadySoft.Authentication.Extensions.DependencyInjection;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using ShadySoft.OAuth.Extensions;
 
 namespace PrayerJournal
 {
@@ -47,7 +50,6 @@ namespace PrayerJournal
 
             services.AddIdentityCore<ApplicationUser>(options =>
                 {
-                    options.SignIn.RequireConfirmedEmail = true;
                     options.Password.RequireDigit = false;
                     options.Password.RequiredLength = 6;
                     options.Password.RequireLowercase = false;
@@ -55,27 +57,30 @@ namespace PrayerJournal
                     options.Password.RequireUppercase = false;
                 })
                 .AddRoles<IdentityRole>()
+                .AddSignInManager()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddAuthentication(ShadyAuthenticationDefaults.AuthenticationScheme)
-                .AddShady<ApplicationUser>(options => {
-                    options.Realm = "PrayerJournal";
-                    options.ExternalLoginProviders = new List<IOAuthHttpService>
-                    {
-                        new FacebookHttpService(
-                            Configuration.GetExternalLoginClientId("Facebook"),
-                            Configuration.GetExternalLoginClientSecret("Facebook"),
-                            Configuration.GetExternalLoginCallbackUri()),
-                        new GoogleHttpService(
-                            Configuration.GetExternalLoginClientId("Google"),
-                            Configuration.GetExternalLoginClientSecret("Google"),
-                            Configuration.GetExternalLoginCallbackUri()),
-                        new MicrosoftHttpService(
-                            Configuration.GetExternalLoginClientId("Microsoft"),
-                            Configuration.GetExternalLoginClientSecret("Microsoft"),
-                            Configuration.GetExternalLoginCallbackUri())
-                    };
+            services.AddShadyAuthentication<ApplicationUser>();
+
+            services.AddOAuth(options => 
+            {
+                options.DefaultCallbackUri = "https://localhost:44306/external-login-callback";
+            })
+                .AddFacebook(options =>
+                {
+                    options.AppId = Configuration["Authentication:Facebook:AppId"];
+                    options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+                })
+                .AddGoogle(options =>
+                {
+                    options.ClientId = Configuration["Authentication:Google:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+                })
+                .AddMicrosoftAccount(options =>
+                {
+                    options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+                    options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
                 });
 
             services.AddUnitOfWork<UnitOfWork>();

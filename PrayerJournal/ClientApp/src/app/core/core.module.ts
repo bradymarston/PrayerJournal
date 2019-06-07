@@ -21,6 +21,7 @@ import { RoleGuard } from './authentication/role.guard';
 import { UserAdminService } from './user.admin.service';
 import { ConstantsService } from './constants/constants.service';
 import { UserProfileService } from './user-profile.service';
+import { AccessTokenInterceptor } from './http/access.token.interceptor';
 
 @NgModule({
   imports: [
@@ -37,6 +38,7 @@ import { UserProfileService } from './user-profile.service';
     I18nService,
     HttpCacheService,
     NotificationsService,
+    AccessTokenInterceptor,
     ApiPrefixInterceptor,
     AuthorizationInterceptor,
     ErrorHandlerInterceptor,

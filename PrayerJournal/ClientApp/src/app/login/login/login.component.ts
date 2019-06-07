@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
   }
 
   handleSuccess(signInResponse: SignInResult) {
-    log.debug(`${signInResponse.userId} successfully logged in`);
+    log.debug(`${signInResponse.name} successfully logged in`);
     this.router.navigate([this.redirectUrl || '/'], { replaceUrl: true });
   }
 

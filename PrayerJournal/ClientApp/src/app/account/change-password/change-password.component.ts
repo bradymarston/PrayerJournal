@@ -35,7 +35,7 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.authorizationService.credentials.caveat === "ChangePassword") {
+    if (this.authorizationService.userInfo.caveat === "ChangePassword") {
       this.sentForCaveat = true;
       this.authorizationService.clearCaveat();
     }
@@ -55,7 +55,7 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   handleSuccess() {
-    log.debug(`${this.authorizationService.credentials.userId} successfully changed their password`);
+    log.debug(`${this.authorizationService.authInfo.userId} successfully changed their password`);
     this.notifications.showMessage("Password successfully changed");
     this.route.queryParams.subscribe(
       params => this.router.navigate([params.redirect || '/'])
@@ -63,7 +63,7 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   handleError(response: HttpErrorResponse) {
-    log.debug(`Password change error for ${this.authorizationService.credentials.userId}: ${response.error}`);
+    log.debug(`Password change error for ${this.authorizationService.authInfo.userId}: ${response.error}`);
     if (response.error instanceof BadRequestErrorDetails)
       this.errors = response.error.errors;
   }

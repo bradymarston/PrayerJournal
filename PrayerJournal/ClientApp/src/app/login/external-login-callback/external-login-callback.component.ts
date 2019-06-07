@@ -18,18 +18,19 @@ export class ExternalLoginCallbackComponent implements OnInit {
 
   ngOnInit() {
     let code = this.route.snapshot.queryParamMap.get("code");
-    let state = JSON.parse(this.route.snapshot.queryParamMap.get("state"));
+    const stateString = this.route.snapshot.queryParamMap.get("state");
+    let state = JSON.parse(stateString);
 
     this.provider = state.provider;
     this.redirectUrl = state.redirect;
-    this.authenticationService.externalLogin(code, this.provider).subscribe(
+    this.authenticationService.externalLogin(code, this.provider, state.securityState).subscribe(
       signInResult => this.handleSuccess(signInResult),
       () => this.hasError = true
     );
   }
 
   handleSuccess(signInResponse: SignInResult) {
-    log.debug(`${signInResponse.userId} successfully logged in using ${this.provider}.`);
+    log.debug(`${signInResponse.name} successfully logged in using ${this.provider}.`);
     this.router.navigate([this.redirectUrl || '/'], { replaceUrl: true });
   }
 }

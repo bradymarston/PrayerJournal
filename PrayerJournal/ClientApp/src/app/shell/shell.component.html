@@ -15,7 +15,7 @@
             </div>
             <mat-divider></mat-divider>
             <a mat-menu-item routerLink="/account/profile" translate>Edit Profile</a>
-            <ng-container *ngIf="authorizationService.credentials.hasPassword">
+            <ng-container *ngIf="authorizationService.userInfo.hasPassword">
               <mat-divider></mat-divider>
               <a mat-menu-item routerLink="/account/change-password" translate>Change Password</a>
             </ng-container>

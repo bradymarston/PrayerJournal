@@ -48,7 +48,7 @@ export class RegisterComponent implements OnInit {
   }
 
   handleSuccess(signInResponse: SignInResult) {
-    log.debug(`${signInResponse.userId} successfully logged in`);
+    log.debug(`${signInResponse.name} successfully logged in`);
     this.notifications.showMessage("Registered " + signInResponse.name);
     this.route.queryParams.subscribe(
       params => this.router.navigate([params.redirect || '/'], { replaceUrl: true })

@@ -6,7 +6,7 @@ using PrayerJournal.Core.Dtos;
 using PrayerJournal.Core.Filters;
 using PrayerJournal.Core.Mappers;
 using PrayerJournal.Core.Models;
-using ShadySoft.Authentication;
+using ShadySoft.Authentication.Extensions.Context;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

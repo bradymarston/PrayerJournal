@@ -5,26 +5,19 @@ import { Observable } from 'rxjs';
 import { AuthorizationService } from '../authorization.service';
 
 /**
- * Caches HTTP requests.
- * Use ExtendedHttpClient fluent API to configure caching for each request.
+ * Adds Authorization header to each request.
  */
 @Injectable()
 export class AuthorizationInterceptor implements HttpInterceptor {
 
   constructor(private _authorizationService: AuthorizationService) { }
 
-  /**
-   * Configures interceptor options
-   * @param options If update option is enabled, forces request to be made and updates cache entry.
-   * @return The configured instance.
-   */
-
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this._authorizationService.isAuthenticated()) {
       return next.handle(request);
     }
 
-    const authRequest = request.clone({ headers: request.headers.append("Authorization", "Shady " + this._authorizationService.credentials.token) });
+    const authRequest = request.clone({ headers: request.headers.append("Authorization", "Shady " + this._authorizationService.authInfo.token) });
     return next.handle(authRequest);
   }
 }
