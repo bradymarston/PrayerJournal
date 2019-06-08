@@ -31,6 +31,9 @@
     <Reference Include="ShadySoft.Authentication">
       <HintPath>..\..\ShadySoft.Authentication\ShadySoft.Authentication\bin\Release\netcoreapp3.0\ShadySoft.Authentication.dll</HintPath>
     </Reference>
+    <Reference Include="ShadySoft.EntityPersistence">
+      <HintPath>..\..\ShadySoft.EntityPersistence\ShadySoft.EntityPersistence\bin\Release\netcoreapp3.0\ShadySoft.EntityPersistence.dll</HintPath>
+    </Reference>
     <Reference Include="ShadySoft.OAuth">
       <HintPath>..\..\ShadySoft.OAuth\ShadySoft.OAuth\bin\Release\netcoreapp3.0\ShadySoft.OAuth.dll</HintPath>
     </Reference>

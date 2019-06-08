@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PrayerJournal.Persistence;
-using PrayerJournal.Core.Repositories;
 using PrayerJournal.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Text;
@@ -24,6 +23,7 @@ using ShadySoft.Authentication.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using ShadySoft.OAuth.Extensions;
+using ShadySoft.EntityPersistence;
 
 namespace PrayerJournal
 {
@@ -39,7 +39,7 @@ namespace PrayerJournal
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddPersistence<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
@@ -83,7 +83,6 @@ namespace PrayerJournal
                     options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
                 });
 
-            services.AddUnitOfWork<UnitOfWork>();
             services.AddScoped<IEmailSender, EmailSender>();
 
             services.AddFindUserFilter<ApplicationUser>();
