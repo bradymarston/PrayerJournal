@@ -6,25 +6,26 @@ using PrayerJournal.Core.Dtos;
 using PrayerJournal.Core.Filters;
 using PrayerJournal.Core.Mappers;
 using PrayerJournal.Core.Models;
-using ShadySoft.Authentication.Extensions.Context;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace PrayerJournal.Controllers
 {
     [ApiController]
     [Route("api/user-admin")]
-    public class UserAdminController : Controller
+    public class UserAdminController : Controller, IControllerWithUserManager<ApplicationUser>
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+
+        public UserManager<ApplicationUser> UserManager { get; }
 
         public UserAdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            _userManager = userManager;
+            UserManager = userManager;
             _roleManager = roleManager;
         }
 
@@ -32,12 +33,12 @@ namespace PrayerJournal.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers()
         {
-            var users = _userManager.Users.ToList();
+            var users = UserManager.Users.ToList();
             var userDtos = new List<UserDto>();
 
             foreach (var user in users)
             {
-                userDtos.Add(await user.ToDtoAsync(_userManager));
+                userDtos.Add(await user.ToDtoAsync(UserManager));
             }
 
             return Ok(userDtos);
@@ -50,7 +51,7 @@ namespace PrayerJournal.Controllers
         {
             var user = HttpContext.GetFoundUser<ApplicationUser>();
 
-            var result = await _userManager.DeleteAsync(user);
+            var result = await UserManager.DeleteAsync(user);
 
             if (!result.Succeeded)
                 return this.IdentityFailure(result);
@@ -62,9 +63,9 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> GetAuthorizedUserRoles()
         {
-            var authorizedUser = HttpContext.GetAuthorizedUser<ApplicationUser>();
+            var authorizedUser = await this.GetAuthorizedUser();
 
-            return Ok(await _userManager.GetRolesAsync(authorizedUser));
+            return Ok(await UserManager.GetRolesAsync(authorizedUser));
         }
 
         [HttpGet("roles/{userId}")]
@@ -77,7 +78,7 @@ namespace PrayerJournal.Controllers
             if (user == null)
                 return NotFound();
 
-            return Ok(await _userManager.GetRolesAsync(user));
+            return Ok(await UserManager.GetRolesAsync(user));
         }
 
         [HttpPost("roles/{userId}")]
@@ -90,7 +91,7 @@ namespace PrayerJournal.Controllers
 
             var user = HttpContext.GetFoundUser<ApplicationUser>();
 
-            var result = await _userManager.AddToRoleAsync(user, role);
+            var result = await UserManager.AddToRoleAsync(user, role);
 
             if (!result.Succeeded)
                 return this.IdentityFailure(result);
@@ -106,14 +107,14 @@ namespace PrayerJournal.Controllers
             if (!await _roleManager.RoleExistsAsync(role))
                 return this.IdentityFailure("RoleDoesNotExist", "This role does not exist");
 
-            var authorizedUser = HttpContext.GetAuthorizedUser<ApplicationUser>();
+            var authorizedUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userId == authorizedUser.Id && role == "Admin")
+            if (userId == authorizedUserId && role == "Admin")
                 return this.IdentityFailure("CannotRemoveOwnAdminRole", "You cannot remove your own admin role.");
 
             var user = HttpContext.GetFoundUser<ApplicationUser>();
 
-            var result = await _userManager.RemoveFromRoleAsync(user, role);
+            var result = await UserManager.RemoveFromRoleAsync(user, role);
 
             if (!result.Succeeded)
                 return this.IdentityFailure(result);

@@ -9,10 +9,10 @@ namespace PrayerJournal.Controllers.Extensions
 {
     public static class ControllerHelperExtensions
     {
-        public static async Task<TUser> GetAuthenticatedUser<TUser>(this IControllerWithUserManager<TUser> controller)
+        public static async Task<TUser> GetAuthorizedUser<TUser>(this IControllerWithUserManager<TUser> controller)
             where TUser : IdentityUser
         {
-            var userId = controller.HttpContext.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = controller.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId == null)
                 return null;

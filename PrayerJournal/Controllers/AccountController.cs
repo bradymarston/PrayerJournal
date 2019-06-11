@@ -128,7 +128,7 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto passwords)
         {
-            var user = await this.GetAuthenticatedUser();
+            var user = await this.GetAuthorizedUser();
 
             if (user == null)
                 return this.IdentityFailure("MissingUser", "User no longer exists");
@@ -243,7 +243,7 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> GetProfile()
         {
-            var user = await this.GetAuthenticatedUser();
+            var user = await this.GetAuthorizedUser();
 
             if (user == null)
                 return this.IdentityFailure("MissingUser", "User no longer exists");
