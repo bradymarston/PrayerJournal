@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using ShadySoft.Authentication.Extensions.Context;
 using PrayerJournal.Controllers.Extensions;
 using PrayerJournal.Core;
 using PrayerJournal.Core.Models;
@@ -24,12 +23,13 @@ namespace PrayerJournal.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AccountController : Controller
+    public class AccountController : Controller, IControllerWithUserManager<ApplicationUser>
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
         private readonly OAuthService _oAuthService;
+
+        public UserManager<ApplicationUser> UserManager { get; private set; }
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -39,7 +39,7 @@ namespace PrayerJournal.Controllers
             OAuthService oAuthService
             )
         {
-            _userManager = userManager;
+            UserManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _oAuthService = oAuthService;
@@ -52,7 +52,7 @@ namespace PrayerJournal.Controllers
 
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                var user = await UserManager.FindByEmailAsync(model.Email);
                 return Ok(await GenerateSignInResultDtoAsync(user));
             }
 
@@ -62,7 +62,7 @@ namespace PrayerJournal.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto registration)
         {
-            if (await _userManager.FindByNameAsync(registration.Email) != null)
+            if (await UserManager.FindByNameAsync(registration.Email) != null)
                 return this.IdentityFailure("EmailInUse", "Email already in use.");
 
             var user = new ApplicationUser
@@ -73,7 +73,7 @@ namespace PrayerJournal.Controllers
                 Email = registration.Email
             };
 
-            var result = await _userManager.CreateAsync(user, registration.Password);
+            var result = await UserManager.CreateAsync(user, registration.Password);
             if (result.Succeeded)
             {
                 await SendEmailTokenAsync(user);
@@ -88,7 +88,7 @@ namespace PrayerJournal.Controllers
         [HttpGet("confirm-email/{email}")]
         public async Task<IActionResult> GetEmailConfirmationCode(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await UserManager.FindByEmailAsync(email);
 
             //Don't reveal that the user doesn't exist or has already confirmed their email address
             if (user == null)
@@ -108,13 +108,13 @@ namespace PrayerJournal.Controllers
         [HttpPut("confirm-email")]
         public async Task<IActionResult> ConfirmEmail([Required] string userId, [Required] string code)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await UserManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, code);
+            var result = await UserManager.ConfirmEmailAsync(user, code);
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
@@ -128,15 +128,18 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto passwords)
         {
-            var user = HttpContext.GetAuthorizedUser<ApplicationUser>();
+            var user = await this.GetAuthenticatedUser();
 
-            var result = await _userManager.ChangePasswordAsync(user, passwords.OldPassword, passwords.NewPassword);
+            if (user == null)
+                return this.IdentityFailure("MissingUser", "User no longer exists");
+
+            var result = await UserManager.ChangePasswordAsync(user, passwords.OldPassword, passwords.NewPassword);
 
             if (!result.Succeeded)
                 return this.IdentityFailure(result);
 
             user.SuggestPasswordChange = false;
-            await _userManager.UpdateAsync(user);
+            await UserManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
 
@@ -146,8 +149,8 @@ namespace PrayerJournal.Controllers
         [HttpGet("password/{email}")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            var user = await UserManager.FindByEmailAsync(email);
+            if (user == null || !(await UserManager.IsEmailConfirmedAsync(user)))
             {
                 // Don't reveal that the user does not exist or is not confirmed
                 return Ok();
@@ -161,13 +164,13 @@ namespace PrayerJournal.Controllers
         [HttpPost("password")]
         public async Task<IActionResult> ResetPassword([Required] string code, ResetPasswordDto model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await UserManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 return Ok();
             }
 
-            var result = await _userManager.ResetPasswordAsync(user, code, model.Password);
+            var result = await UserManager.ResetPasswordAsync(user, code, model.Password);
             if (result.Succeeded)
                 return Ok();
 
@@ -182,8 +185,6 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> LogoutEverywhere()
         {
-            var user = HttpContext.GetAuthorizedUser<ApplicationUser>();
-
             await _signInManager.SignOutAsync();
 
             return Ok();
@@ -215,21 +216,21 @@ namespace PrayerJournal.Controllers
             if (info == null)
                 return this.IdentityFailure("ExternalLoginFailure", "Failed to get login info from external service.");
 
-            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            var user = await UserManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
             if (user == null)
             {
                 //User doesn't exist, create one
                 user = CreateUserFromExternalPrincipalClaims(info.Principal, provider);
 
-                var userManagerResult = await _userManager.CreateAsync(user);
+                var userManagerResult = await UserManager.CreateAsync(user);
                 if (!userManagerResult.Succeeded)
                     return this.IdentityFailure(userManagerResult);
 
-                userManagerResult = await _userManager.AddLoginAsync(user, info);
+                userManagerResult = await UserManager.AddLoginAsync(user, info);
                 if (!userManagerResult.Succeeded)
                 {
-                    await _userManager.DeleteAsync(user);
+                    await UserManager.DeleteAsync(user);
                     return this.IdentityFailure(userManagerResult);
                 }
             }
@@ -242,14 +243,17 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> GetProfile()
         {
-            var user = HttpContext.GetAuthorizedUser<ApplicationUser>();
+            var user = await this.GetAuthenticatedUser();
 
-            return Ok(await user.ToDtoAsync(_userManager));
+            if (user == null)
+                return this.IdentityFailure("MissingUser", "User no longer exists");
+
+            return Ok(await user.ToDtoAsync(UserManager));
         }
 
         private async Task SendPasswordTokenAsync(ApplicationUser user)
         {
-            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var code = await UserManager.GeneratePasswordResetTokenAsync(user);
 
             var callbackUrl = $"{Request.Scheme}://{Request.Host}/reset-password?code={Uri.EscapeDataString(Uri.EscapeDataString(code))}";
 
@@ -259,7 +263,7 @@ namespace PrayerJournal.Controllers
 
         private async Task SendEmailTokenAsync(ApplicationUser user)
         {
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
 
             var callbackUrl = $"{Request.Scheme}://{Request.Host}/confirm-email?userId={Uri.EscapeDataString(user.Id)}&code={Uri.EscapeDataString(Uri.EscapeDataString(code))}";
 
@@ -273,7 +277,7 @@ namespace PrayerJournal.Controllers
             {
                 HasPassword = user.PasswordHash != null,
                 Name = $"{user.FirstName} {user.LastName}",
-                Roles = await _userManager.GetRolesAsync(user)
+                Roles = await UserManager.GetRolesAsync(user)
             };
 
             if (user.SuggestPasswordChange)
