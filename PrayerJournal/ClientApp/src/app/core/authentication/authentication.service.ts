@@ -25,6 +25,12 @@ export interface ChangePasswordContext {
   confirmPassword: string;
 }
 
+export interface ConfirmEmailContext {
+  userId: string;
+  code: string;
+  password: string;
+} 
+
 export interface ResetPasswordContext {
   email: string;
   password: string;
@@ -76,10 +82,10 @@ export class AuthenticationService {
       .put(`${this.baseAddress}/password`, context);
   }
 
-  confirmEmail(userId: string, code: string) {
+  confirmEmail(context: ConfirmEmailContext) {
     return this._http
       .disableApiPrefix()
-      .put<SignInResult>(`${this.baseAddress}/confirm-email?userId=${userId}&code=${code}`, null)
+      .put<SignInResult>(`${this.baseAddress}/confirm-email`, context)
       .pipe(map(result => this.processSignInResult(result, false)));
   }
 
@@ -132,7 +138,7 @@ export class AuthenticationService {
       .pipe(mergeMap(() => this.logoutThisDevice()));
   }
 
-  private processSignInResult(signInResult: SignInResult, remember: boolean) : SignInResult {
+  public processSignInResult(signInResult: SignInResult, remember: boolean) : SignInResult {
     const userInfo: StoredUserInfo = {
       name: signInResult.name,
       hasPassword: signInResult.hasPassword,

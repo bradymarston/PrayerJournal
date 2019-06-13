@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Logger, AuthenticationService, NotificationsService } from '@app/core';
+import { Logger, AuthenticationService, NotificationsService, ConfirmEmailContext } from '@app/core';
+import { BadRequestErrorDetails } from '../../common/bad-request-error-details';
 
 @Component({
   selector: 'app-confirm-email',
@@ -10,6 +11,12 @@ import { Logger, AuthenticationService, NotificationsService } from '@app/core';
 export class ConfirmEmailComponent implements OnInit {
 
   isLoading = true;
+  errors: string[] = [];
+  context: ConfirmEmailContext = {
+    userId: "",
+    code: "",
+    password: ""
+  };
 
   constructor(private router: Router,
               private route: ActivatedRoute,
@@ -18,14 +25,26 @@ export class ConfirmEmailComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params =>
-      this.authenticationService.confirmEmail(params.userId, params.code)
-        .subscribe(
-          () => {
-            this.notifications.showMessage("Email confirmed");
-            this.router.navigate(["/home"]);
-          },
-          () => this.isLoading = false)
-    );
+    this.route.queryParams.subscribe(params => {
+      this.context.userId = params.userId;
+      this.context.code = params.code;
+
+      this.isLoading = false;
+    });
+  }
+
+  submit() {
+    this.authenticationService.confirmEmail(this.context)
+      .subscribe(
+        () => {
+          console.log("Confirm email: Success");
+          this.notifications.showMessage("Email confirmed");
+          this.router.navigate(["/home"]);
+        },
+        response => {
+          if (response.error instanceof BadRequestErrorDetails)
+            this.errors = response.error.errors;
+        }
+      );
   }
 }

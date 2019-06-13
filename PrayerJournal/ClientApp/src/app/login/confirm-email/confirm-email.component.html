@@ -1,15 +1,25 @@
-<div fxFill fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1.5rem" class="mat-typography" *ngIf="!isLoading">
+<div fxFill fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="1.5rem" class="mat-typography">
   <div>
     <h1 class="mat-display-2" fxLayoutAlign="center" translate>APP_NAME</h1>
   </div>
   <div class="confirm-email-container" fxLayout="row" fxLayoutAlign="center">
     <mat-card fxFlex="90%" fxFlex.sm="66%" fxFlex.md="50%" fxFlex.gt-md="33%" class="register-box">
-      <h1 class="headline">Email Confirmation Failed</h1>
-      Something didn't work while confirming your email. Please log in again and request another confirmation email. <br />
-      <br />
-      <a mat-button color="primary" [routerLink]="['/login']">
-        RETURN TO LOGIN
-      </a>
+      <div fxLayout="row" fxLayoutAlign="space-between start">
+        <h1 class="headline">
+          Confirm Email
+        </h1>
+        <app-back-to-login-button></app-back-to-login-button>
+      </div>
+      <app-server-errors [errors]="errors"></app-server-errors>
+      <div fxLayout="column" fxLayoutGap="1rem">
+        <mat-form-field fxFlex="grow">
+          <input [(ngModel)]="context.password" matInput
+                 (keyup.enter)="submit()"
+                 type="password"
+                 placeholder="Password" required />
+        </mat-form-field>
+        <button type="button" mat-raised-button color="primary" [disabled]="!context.password" (click)="submit()">SUBMIT</button>
+      </div>
     </mat-card>
   </div>
 </div>
