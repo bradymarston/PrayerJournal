@@ -17,15 +17,14 @@ namespace PrayerJournal.Controllers
 {
     [ApiController]
     [Route("api/user-admin")]
-    public class UserAdminController : Controller, IControllerWithUserManager<ApplicationUser>
+    public class UserAdminController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
-
-        public UserManager<ApplicationUser> UserManager { get; }
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public UserAdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            UserManager = userManager;
+            _userManager = userManager;
             _roleManager = roleManager;
         }
 
@@ -33,12 +32,12 @@ namespace PrayerJournal.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers()
         {
-            var users = UserManager.Users.ToList();
+            var users = _userManager.Users.ToList();
             var userDtos = new List<UserDto>();
 
             foreach (var user in users)
             {
-                userDtos.Add(await user.ToDtoAsync(UserManager));
+                userDtos.Add(await user.ToDtoAsync(_userManager));
             }
 
             return Ok(userDtos);
@@ -51,7 +50,7 @@ namespace PrayerJournal.Controllers
         {
             var user = HttpContext.GetFoundUser<ApplicationUser>();
 
-            var result = await UserManager.DeleteAsync(user);
+            var result = await _userManager.DeleteAsync(user);
 
             if (!result.Succeeded)
                 return this.IdentityFailure(result);
@@ -63,9 +62,9 @@ namespace PrayerJournal.Controllers
         [Authorize]
         public async Task<IActionResult> GetAuthorizedUserRoles()
         {
-            var authorizedUser = await this.GetAuthorizedUser();
+            var authorizedUser = await _userManager.GetUserAsync(User);
 
-            return Ok(await UserManager.GetRolesAsync(authorizedUser));
+            return Ok(await _userManager.GetRolesAsync(authorizedUser));
         }
 
         [HttpGet("roles/{userId}")]
@@ -78,7 +77,7 @@ namespace PrayerJournal.Controllers
             if (user == null)
                 return NotFound();
 
-            return Ok(await UserManager.GetRolesAsync(user));
+            return Ok(await _userManager.GetRolesAsync(user));
         }
 
         [HttpPost("roles/{userId}")]
@@ -91,7 +90,7 @@ namespace PrayerJournal.Controllers
 
             var user = HttpContext.GetFoundUser<ApplicationUser>();
 
-            var result = await UserManager.AddToRoleAsync(user, role);
+            var result = await _userManager.AddToRoleAsync(user, role);
 
             if (!result.Succeeded)
                 return this.IdentityFailure(result);
@@ -114,7 +113,7 @@ namespace PrayerJournal.Controllers
 
             var user = HttpContext.GetFoundUser<ApplicationUser>();
 
-            var result = await UserManager.RemoveFromRoleAsync(user, role);
+            var result = await _userManager.RemoveFromRoleAsync(user, role);
 
             if (!result.Succeeded)
                 return this.IdentityFailure(result);

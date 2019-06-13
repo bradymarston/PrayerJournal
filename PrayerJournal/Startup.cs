@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using ShadySoft.OAuth.Extensions;
 using ShadySoft.EntityPersistence;
+using PrayerJournal.Core.Identity;
 
 namespace PrayerJournal
 {
@@ -55,11 +56,17 @@ namespace PrayerJournal
                     options.Password.RequireLowercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequireUppercase = false;
+                    options.SignIn.RequireConfirmedAccount = true;
                 })
                 .AddRoles<IdentityRole>()
                 .AddSignInManager()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddScoped<PendingEmailUserManager<ApplicationUser>>();
+            services.AddScoped<UserManager<ApplicationUser>>(svcs => svcs.GetService<PendingEmailUserManager<ApplicationUser>>());
+            services.AddScoped<IUserStore<ApplicationUser>, UserPendingEmailStore<ApplicationUser, ApplicationDbContext>>();
+            services.AddScoped<IUserConfirmation<ApplicationUser>, PendingEmailUserConfirmation<ApplicationUser>>();
 
             services.AddShadyAuthentication<ApplicationUser>();
 

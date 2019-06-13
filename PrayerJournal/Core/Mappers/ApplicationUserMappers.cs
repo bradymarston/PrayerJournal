@@ -18,11 +18,21 @@ namespace PrayerJournal.Core.Mappers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
+                EmailConfirmed = user.EmailConfirmed,
                 PhoneNumber = user.PhoneNumber,
+                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                PendingEmail = user.PendingEmail,
+                PendingPhoneNumber = user.PendingPhoneNumber,
                 HasPassword = user.PasswordHash != null,
                 Roles = await userManager.GetRolesAsync(user),
                 ExternalLogins = (await userManager.GetLoginsAsync(user)).Select(l => l.LoginProvider).ToList()
             };
+        }
+
+        public static void UpdateData(this UserDto userDto, ApplicationUser userData)
+        {
+            userData.FirstName = userDto.FirstName;
+            userData.LastName = userDto.LastName;
         }
     }
 }
