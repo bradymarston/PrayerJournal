@@ -14,6 +14,8 @@ import { LoginModule } from './login/login.module';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { ConfirmDialogComponent } from './dialogs/confirm-dialog/confirm-dialog.component';
+import { PromptDialogComponent } from './dialogs/prompt-dialog/prompt-dialog.component';
+import { MessageDialogComponent } from './dialogs/message-dialog/message-dialog.component';
 
 @NgModule({
   imports: [
@@ -32,11 +34,13 @@ import { ConfirmDialogComponent } from './dialogs/confirm-dialog/confirm-dialog.
   ],
   declarations: [
     AppComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    PromptDialogComponent,
+    MessageDialogComponent
   ],
   providers: [
   ],
-  entryComponents: [ConfirmDialogComponent],
+  entryComponents: [ConfirmDialogComponent, PromptDialogComponent, MessageDialogComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
