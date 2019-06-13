@@ -1,2 +1,116 @@
-{{ user.firstName }} {{ user.lastName }}
-{{ user.email }}
+<div class="container">
+  <mat-card fxFlex="100%" fxFlex.md="90%" fxFlex.gt-md="66%" fxFlex.gt-lg="50%">
+    <form (ngSubmit)="updateProfile()" [formGroup]="form" novalidate>
+      <app-server-errors [errors]="errors"></app-server-errors>
+      <br />
+      <div fxLayout="column" fxLayoutGap.xs="1.5rem">
+        <div fxLayout.gt-xs="row" fxLayoutAlign.gt-xs="start"
+             fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="start stretch"
+             fxLayoutGap.gt-xs="1.5rem">
+          <mat-form-field fxFlex="grow">
+            <input type="text"
+                   matInput formControlName="firstName"
+                   autocomplete="given-name"
+                   placeholder="First Name" required />
+            <mat-error>
+              <validation-warning [control]="form.controls.firstName"
+                                  controlTitle="First Name">
+              </validation-warning>
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field fxFlex="grow">
+            <input type="text"
+                   matInput formControlName="lastName"
+                   autocomplete="family-name"
+                   placeholder="Last Name" required />
+            <mat-error>
+              <validation-warning [control]="form.controls.lastName"
+                                  controlTitle="Last Name">
+              </validation-warning>
+            </mat-error>
+          </mat-form-field>
+          <div>
+            <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || isLoading || !form.dirty || isUpdating">
+              <app-loader class="inline-loader" [isLoading]="isUpdating"></app-loader>
+              SUBMIT CHANGES
+            </button>
+          </div>
+        </div>
+        <div fxLayout="row" fxLayoutGap="1.5rem" fxLayoutAlign="start start">
+          <div *ngIf="user.hasPassword">
+            <button mat-raised-button color="accent" type="button" (click)="changeEmail()">
+              {{user.email || user.pendingEmail ? "CHANGE EMAIL" : "ADD EMAIL"}}
+            </button>
+          </div>
+          <div fxFlex="grow" fxLayout="column">
+            <mat-form-field fxFlex="grow" class="input-label">
+              <input type="text"
+                     matInput [value]="user.email"
+                     disabled
+                     [placeholder]="user.email ? 'Confirmed Email Address' : ''" />
+              <mat-error>
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field fxFlex="grow" class="input-label" *ngIf="user.pendingEmail">
+              <input type="text"
+                     matInput [value]="user.pendingEmail"
+                     disabled
+                     placeholder="Pending Email Address" />
+              <mat-error>
+              </mat-error>
+            </mat-form-field>
+            <div fxLayout.gt-xs="row" fxLayout.xs="column" fxLayoutAlign="end end" fxLayoutGap="1rem" *ngIf="user.pendingEmail">
+              <div>
+                <button mat-raised-button (click)="resendEmailConfirmation()">
+                  RESEND CONFIRMATION
+                </button>
+              </div>
+              <div>
+                <button mat-raised-button color="warn" (click)="cancelEmailChange()">
+                  CANCEL CHANGE
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div fxLayout="row" fxLayoutGap="1.5rem" fxLayoutAlign="start start" *ngIf="user.hasPassword">
+          <div>
+            <button mat-raised-button color="accent" type="button">
+              {{user.phoneNumber || user.pendingPhoneNumber ? "CHANGE PHONE" : "ADD PHONE"}}
+            </button>
+          </div>
+          <div fxFlex="grow" fxLayout="column">
+            <mat-form-field fxFlex="grow" class="input-label">
+              <input type="text"
+                     matInput [value]="user.phoneNumber"
+                     disabled
+                     [placeholder]="user.phoneNumber ? 'Confirmed Mobile Phone Number' : ''" />
+              <mat-error>
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field fxFlex="grow" class="input-label" *ngIf="user.pendingPhoneNumber">
+              <input type="text"
+                     matInput [value]="user.pendingPhoneNumber"
+                     disabled
+                     placeholder="Pending Mobile Phone Number" />
+              <mat-error>
+              </mat-error>
+            </mat-form-field>
+            <div fxLayout.gt-xs="row" fxLayout.xs="column" fxLayoutAlign="end end" fxLayoutGap="1rem" *ngIf="user.pendingPhoneNummber">
+              <div>
+                <button mat-raised-button>
+                  RESEND CONFIRMATION
+                </button>
+              </div>
+              <div>
+                <button mat-raised-button color="warn">
+                  CANCEL CHANGE
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </mat-card>
+</div>
