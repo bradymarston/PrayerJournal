@@ -79,12 +79,7 @@ export class ProfileComponent implements OnInit {
     this.dialogService.prompt({
       title: "CHANGE EMAIL ADDRESS",
       content: "Enter new email address",
-      placeholder: "Email Address",
-      submitText: "SUBMIT",
-      submitColor: "primary",
-      cancelText: "CANCEL",
-      cancelColor: "basic",
-      type: "text"
+      placeholder: "Email Address"
     }).subscribe(newEmail => {
       const oldPendingEmail = this.user.pendingEmail;
 
@@ -94,9 +89,7 @@ export class ProfileComponent implements OnInit {
           () => {
             this.dialogService.message({
               title: "CHANGE SUBMITTED",
-              content: "You have been sent a confirmation email. Check your email and follow the directions.",
-              buttonText: "OKAY",
-              buttonColor: "primary"
+              content: "You have been sent a confirmation email. Check your email and follow the directions."
             }).subscribe();
           },
           response => {

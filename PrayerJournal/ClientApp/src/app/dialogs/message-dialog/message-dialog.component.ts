@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
-export class MessageDialogOptions {
-  title = "MESSAGE";
-  content = "Read this";
-  buttonText = "OKAY";
-  buttonColor = "primary";
+export interface MessageDialogOptions {
+  title?: string;
+  content?: string;
+  buttonText?: string;
+  buttonColor?: string;
 }
 
 @Component({
@@ -16,10 +16,21 @@ export class MessageDialogOptions {
 export class MessageDialogComponent implements OnInit {
   value = "";
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: MessageDialogOptions) {
-    if (!this.data) this.data = new MessageDialogOptions();
+  title = "MESSAGE";
+  content = "Read this";
+  buttonText = "OKAY";
+  buttonColor = "primary";
+
+  constructor(@Inject(MAT_DIALOG_DATA) inputData: MessageDialogOptions) {
+    if (inputData)
+      this.copyData(inputData);
   }
 
   ngOnInit() {
+  }
+
+  copyData(data: MessageDialogOptions) {
+    for (let key in data)
+      this[key] = data[key];
   }
 }

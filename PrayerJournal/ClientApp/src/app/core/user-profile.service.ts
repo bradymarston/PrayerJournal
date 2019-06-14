@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { User } from "../common/user";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { AuthenticationService } from ".";
+import { AuthenticationService } from "./authentication/authentication.service";
 import { SignInResult } from "./authentication/authentication.service";
 import { map } from "rxjs/operators";
 

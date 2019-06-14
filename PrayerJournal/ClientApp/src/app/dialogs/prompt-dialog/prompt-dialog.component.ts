@@ -1,15 +1,16 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
-export class PromptDialogOptions {
-  title = "Prompt";
-  type = "text";
-  content = "Enter text";
-  placeholder = "Text";
-  submitText = "SUBMIT";
-  cancelText = "CANCEL";
-  submitColor = "primary";
-  cancelColor = "basic";
+export interface PromptDialogOptions {
+  title?: string;
+  type?: string;
+  content?: string;
+  placeholder?: string;
+  submitText?: string;
+  cancelText?: string;
+  submitColor?: string;
+  cancelColor?: string;
+  regExp?: RegExp;
 }
 
 @Component({
@@ -20,12 +21,28 @@ export class PromptDialogOptions {
 export class PromptDialogComponent implements OnInit {
   value = "";
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: PromptDialogOptions,
+  title = "Prompt";
+  type = "text";
+  content = "Enter text";
+  placeholder = "Text";
+  submitText = "SUBMIT";
+  cancelText = "CANCEL";
+  submitColor = "primary";
+  cancelColor = "basic";
+  regExp = /^(?=\s*\S).*$/;
+
+  constructor(@Inject(MAT_DIALOG_DATA) inputData: PromptDialogOptions,
     public dialogRef: MatDialogRef<PromptDialogOptions>) {
-    if (!this.data) this.data = new PromptDialogOptions();
+    if (inputData)
+      this.copyData(inputData);
   }
 
   ngOnInit() {
+  }
+
+  copyData(data: PromptDialogOptions) {
+    for (let key in data)
+      this[key] = data[key];
   }
 
   submitData() {

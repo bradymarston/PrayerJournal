@@ -68,12 +68,11 @@ export class AdminComponent implements OnInit {
 
   deleteUser(user: User) {
     this._dialogService.confirm({
-      title: "Delete User Confirmation",
+      title: "DELETE USER CONFIRMATION",
       content: `Permenantly delete ${user.firstName} ${user.lastName}? (This cannot be undone)`,
       yesText: "DELETE",
       noText: "CANCEL",
-      yesColor: "warn",
-      noColor: "basic"
+      yesColor: "warn"
     }).subscribe(result => {
       if (result) {
         let index = this.users.remove(user);
@@ -87,12 +86,11 @@ export class AdminComponent implements OnInit {
 
   removeRole(user: User, role: string) {
     this._dialogService.confirm({
-      title: "Remove Role Confirmation",
+      title: "REMOVE ROLE CONFIRMATION",
       content: `Remove the role "${this.roleNames[role]}" from ${user.firstName} ${user.lastName}?`,
       yesText: "REMOVE",
       noText: "CANCEL",
-      yesColor: "warn",
-      noColor: "basic"
+      yesColor: "warn"
     }).subscribe(result => {
       if (result) {
         let index = user.roles.indexOf(role);

@@ -1,16 +1,16 @@
-<h1 mat-dialog-title>{{data.title}}</h1>
+<h1 mat-dialog-title>{{title}}</h1>
 <div mat-dialog-content>
   <p>
-    {{data.content}}
+    {{content}}
   </p>
   <mat-form-field>
     <input [(ngModel)]="value" matInput
             (keyup.enter)="submitData()"
-            [type]="data.type"
-            [placeholder]="data.placeholder" required />
+            [type]="type"
+            [placeholder]="placeholder" required />
   </mat-form-field>
 </div>
 <mat-dialog-actions>
-  <button mat-button [color]="data.submitColor" [disabled]="!value" (click)="submitData()">{{data.submitText}}</button>
-  <button mat-button [color]="data.cancelColor" [mat-dialog-close]="null">{{data.cancelText}}</button>
+  <button mat-button [color]="submitColor" [disabled]="!regExp.test(value)" (click)="submitData()">{{submitText}}</button>
+  <button mat-button [color]="cancelColor" [mat-dialog-close]="null">{{cancelText}}</button>
 </mat-dialog-actions>
